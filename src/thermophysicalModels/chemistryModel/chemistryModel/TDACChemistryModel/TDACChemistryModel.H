@@ -44,7 +44,6 @@ SourceFiles
 
 #include "chemistryModel.H"
 #include "mechanismReduction.H"
-#include "tabulation.H"
 #include "chemkinReader.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -88,9 +87,6 @@ class TDACChemistryModel
         Field<label> completeToSimplifiedIndex_;
         DynamicList<label> simplifiedToCompleteIndex_;
         List<List<chemkinReader::specieElement> > specieComp_;
-
-        //- Tabulation
-        autoPtr<tabulation<CompType, ThermoType> > tabulation_;
 
 
 public:
