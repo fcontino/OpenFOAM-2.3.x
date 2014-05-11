@@ -43,32 +43,19 @@ Foam::TDACChemistryModel<CompType, ThermoType>::TDACChemistryModel
     simplifiedToCompleteIndex_(this->nSpecie_),
     specieComp_(this->nSpecie_)
 {
-    {
-        IOdictionary thermoDict
         (
-         IOobject
-         (
-          "thermophysicalProperties",
-          mesh.time().constant(),
-          mesh,
-          IOobject::MUST_READ,
-          IOobject::NO_WRITE
-          )
-         );
 
-        // Store the species composition according to the species index
-        speciesTable speciesTab = this->thermo().composition().species();
-        chemkinReader tchemRead(thermoDict, speciesTab);
-        const HashTable<List<chemkinReader::specieElement> >& specComp =
-        tchemRead.specieComposition();
-        forAll(specieComp_,i)
-        {
-            specieComp_[i] = specComp[this->Y()[i].name()];
-        }
     }
 
     mechRed_ =
         mechanismReduction<CompType, ThermoType>::New
+        (
+            *this,
+            *this
+        );
+
+    tabulation_ =
+        tabulation<CompType, ThermoType>::New
         (
             *this,
             *this
@@ -402,7 +389,6 @@ void Foam::TDACChemistryModel<CompType, ThermoType>::jacobian
             dfdc[i][j] = 0.0;
         }
     }
-
     // length of the first argument must be nSpecie()
     // (reduced when mechanism reduction is active)
     tmp<scalarField> tom(omega(c, T, p));
@@ -416,10 +402,8 @@ void Foam::TDACChemistryModel<CompType, ThermoType>::jacobian
         if (!reactionsDisabled_[ri])
         {
             const Reaction<ThermoType>& R = this->reactions_[ri];
-
             const scalar kf0 = R.kf(p, T, c2);
             const scalar kr0 = R.kr(kf0, p, T, c2);
-
             forAll(R.lhs(), j)
             {
                 label sj = R.lhs()[j].index;
@@ -555,7 +539,7 @@ void Foam::TDACChemistryModel<CompType, ThermoType>::jacobian
 (
  const scalar t,
  const scalarField& c,
- scalarSquareMatrix& dfdc
+ scalarRectangularMatrix& dfdc
  ) const
 {
     //if the mechanism reduction is active, the computed Jacobian
@@ -581,7 +565,6 @@ void Foam::TDACChemistryModel<CompType, ThermoType>::jacobian
             c2[i] = max(c[i], 0.0);
         }
     }
-
     for (label i=0; i<this->nEqns(); i++)
     {
         for (label j=0; j<this->nEqns(); j++)
@@ -784,8 +767,27 @@ Foam::scalar Foam::TDACChemistryModel<CompType, ThermoType>::solve
         // Initialise time progress
         scalar timeLeft = deltaT[celli];
 
-              if (mechRed_->active())
+        scalarField Rphiq(this->nEqns(),0.0);
+        // When tabulation is active (short-circuit evaluation for retrieve)
+        // It first tries to retrieve the solution of the system with the
+        // information stored through the tabulation method
+        if (tabulation_->active() && tabulation_->retrieve(phiq, Rphiq))
+        {
+            // Retrieved solution stored in Rphiq
+            for (label i=0; i<this->nSpecie(); i++)
             {
+                c[i] = rhoi*Rphiq[i]/this->specieThermo_[i].W();
+            }
+        }
+        // This position is reached when tabulation is not used OR
+        // if the solution is not retrieved.
+        // In the latter case, it adds the information to the tabulation
+        // (it will either expand the current data or add a new stored poin).
+        else
+        {
+            if (mechRed_->active())
+            {
+                //reduce mechanism change the number of species (only active)
                 mechRed_->reduceMechanism(c,Ti,pi);
             }
             // Calculate the chemical source terms
@@ -797,6 +799,8 @@ Foam::scalar Foam::TDACChemistryModel<CompType, ThermoType>::solve
                     //completeC_ used in the overridden ODE methods
                     //to update only the active species
                     completeC_ = c;
+                    //solve the reduced set of ODE
+
                     this->solve
                     (
                         simplifiedC_, Ti, pi, dt, this->deltaTChem_[celli]
@@ -813,14 +817,26 @@ Foam::scalar Foam::TDACChemistryModel<CompType, ThermoType>::solve
                 timeLeft -= dt;
             }
 
-            // When all operations are done and if mechanism reduction is on
-            // the number of species (which also affect nEqns) is set back
+            // If tabulation is used, we add the information computed here to
+            // the stored points (either expand or add)
+            if (tabulation_->active())
+            {
+                forAll(c,i)
+                {
+                    Rphiq[i] = c[i]/rhoi*this->specieThermo_[i].W();
+                }
+                Rphiq[Rphiq.size()-2] = Ti;
+                Rphiq[Rphiq.size()-1] = pi;
+                tabulation_->add(phiq, Rphiq, rhoi);
+            }
+
+            // When operations are done and if mechanism reduction is active,
+            // the number of species (which also affects nEqns) is set back
             // to the total number of species (stored in the mechRed object)
             if (mechRed_->active())
             {
                 this->nSpecie_ = mechRed_->nSpecie();
             }
-
             deltaTMin = min(this->deltaTChem_[celli], deltaTMin);
 
 
@@ -830,6 +846,13 @@ Foam::scalar Foam::TDACChemistryModel<CompType, ThermoType>::solve
             this->RR_[i][celli] =
                 (c[i] - c0[i])*this->specieThermo_[i].W()/deltaT[celli];
         }
+    }
+    if (tabulation_->active())
+    {
+        //every time-step, look if the tabulation should be updated
+        tabulation_->update();
+        //write the performance of the tabulation
+        tabulation_->writePerformance();
     }
 
     return deltaTMin;

@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011-2013 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2014 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -260,10 +260,12 @@ tmp<fvScalarMatrix> thermoSingleLayer::q(volScalarField& hs) const
     volScalarField htcst(htcs_->h());
     volScalarField htcwt(htcw_->h());
 
-    forAll(alpha_, i)
+    const volScalarField mask(pos(delta_ - deltaSmall_));
+
+    forAll(mask, i)
     {
-        htcst[i] *= max(alpha_[i], ROOTVSMALL);
-        htcwt[i] *= max(alpha_[i], ROOTVSMALL);
+        htcst[i] *= max(mask[i], ROOTVSMALL);
+        htcwt[i] *= max(mask[i], ROOTVSMALL);
     }
 
     htcst.correctBoundaryConditions();
@@ -552,8 +554,24 @@ thermoSingleLayer::thermoSingleLayer
 
         // Update derived fields
         hs_ == hs(T_);
+
         deltaRho_ == delta_*rho_;
-        phi_ = fvc::interpolate(deltaRho_*U_) & regionMesh().Sf();
+
+        surfaceScalarField phi0
+        (
+            IOobject
+            (
+                "phi",
+                time().timeName(),
+                regionMesh(),
+                IOobject::READ_IF_PRESENT,
+                IOobject::AUTO_WRITE,
+                false
+            ),
+            fvc::interpolate(deltaRho_*U_) & regionMesh().Sf()
+        );
+
+        phi_ == phi0;
 
         // evaluate viscosity from user-model
         viscosity_->correct(pPrimary_, T_);
