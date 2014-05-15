@@ -838,7 +838,7 @@ Foam::scalar Foam::TDACChemistryModel<CompType, ThermoType>::solve
                 this->nSpecie_ = mechRed_->nSpecie();
             }
             deltaTMin = min(this->deltaTChem_[celli], deltaTMin);
-
+        }
 
         // Set the RR vector (used in the solver)
         for (label i=0; i<this->nSpecie_; i++)

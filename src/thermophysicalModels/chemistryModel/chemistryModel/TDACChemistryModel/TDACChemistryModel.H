@@ -43,6 +43,7 @@ SourceFiles
 
 #include "chemistryModel.H"
 #include "mechanismReduction.H"
+#include "tabulation.H"
 #include "chemkinReader.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -87,6 +88,9 @@ class TDACChemistryModel
         List<List<chemkinReader::specieElement> > specieComp_;
         autoPtr<mechanismReduction<CompType, ThermoType> > mechRed_;
 
+
+        //- Tabulation
+        autoPtr<tabulation<CompType, ThermoType> > tabulation_;
 
 
 public:
