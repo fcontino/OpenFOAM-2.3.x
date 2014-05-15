@@ -43,8 +43,26 @@ Foam::TDACChemistryModel<CompType, ThermoType>::TDACChemistryModel
     simplifiedToCompleteIndex_(this->nSpecie_),
     specieComp_(this->nSpecie_)
 {
+    IOdictionary thermoDict
+    (
+        IOobject
         (
+            "thermophysicalProperties",
+            mesh.time().constant(),
+            mesh,
+            IOobject::MUST_READ,
+            IOobject::NO_WRITE
+         )
+     );
 
+    // Store the species composition according to the species index
+    speciesTable speciesTab = this->thermo().composition().species();
+    chemkinReader tchemRead(thermoDict, speciesTab);
+    const HashTable<List<chemkinReader::specieElement> >& specComp =
+    tchemRead.specieComposition();
+    forAll(specieComp_,i)
+    {
+        specieComp_[i] = specComp[this->Y()[i].name()];
     }
 
     mechRed_ =
