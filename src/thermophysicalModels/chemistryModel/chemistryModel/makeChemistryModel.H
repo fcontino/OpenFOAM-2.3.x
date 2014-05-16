@@ -38,7 +38,6 @@ namespace Foam
 {
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-
 #define makeChemistryModel(SS, Comp, Thermo)                                  \
                                                                               \
     typedef SS<Comp, Thermo> SS##Comp##Thermo;                                \
