@@ -865,6 +865,7 @@ Foam::scalar Foam::TDACChemistryModel<CompType, ThermoType>::solve
                 (c[i] - c0[i])*this->specieThermo_[i].W()/deltaT[celli];
         }
     }
+
     if (tabulation_->active())
     {
         //every time-step, look if the tabulation should be updated

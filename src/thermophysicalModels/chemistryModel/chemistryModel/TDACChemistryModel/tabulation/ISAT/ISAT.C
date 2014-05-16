@@ -308,7 +308,6 @@ bool Foam::ISAT<CompType, ThermoType>::cleanAndBalance()
         }
         x = xtmp;
     }
-
     //check if the tree should be balanced according to criterion:
     //  -the depth of the tree bigger than a*log2(size), log2(size) being the
     //      ideal depth (e.g. 4 leafs can be stored in a tree of depth 2)

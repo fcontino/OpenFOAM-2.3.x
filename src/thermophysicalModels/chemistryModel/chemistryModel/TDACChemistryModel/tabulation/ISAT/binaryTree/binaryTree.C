@@ -699,18 +699,17 @@ void Foam::binaryTree<CompType, ThermoType>::balance()
     //in this direction if these extreme points were not deleted in the
     //cleaning that come before the balance function they are still important
     //and the tree should therefore take them into account
-    SortableList<scalar> phiMaxDir(chemistry_.nEqns(),0.0);
+    SortableList<scalar> phiMaxDir(chemPoints.size(),0.0);
     forAll(chemPoints,j)
     {
         phiMaxDir[j] = chemPoints[j]->phi()[maxDir];
     }
 
     phiMaxDir.sort();
-
     //delete reference to all node since the tree is reshaped
     deleteAllNode();
     root_=NULL;
-    
+
     //add the node for the two extremum
     bn* newNode = new bn
         (
@@ -719,6 +718,7 @@ void Foam::binaryTree<CompType, ThermoType>::balance()
             NULL
         );
     root_ = newNode;
+
     chemPoints[phiMaxDir.indices()[0]]->node() = newNode;
     chemPoints[phiMaxDir.indices()[phiMaxDir.size()-1]]->node() = newNode;
 
