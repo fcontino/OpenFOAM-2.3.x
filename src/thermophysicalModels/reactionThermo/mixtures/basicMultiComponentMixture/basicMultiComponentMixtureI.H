@@ -99,4 +99,15 @@ inline Foam::tmp<Foam::volScalarField> Foam::basicMultiComponentMixture::fres
 }
 
 
+inline bool Foam::basicMultiComponentMixture::isActive(label specieI) const
+{
+    return active_[specieI];
+}
+
+
+inline void Foam::basicMultiComponentMixture::setActive(label specieI)
+{
+    active_[specieI] = true;
+}
+
 // ************************************************************************* //

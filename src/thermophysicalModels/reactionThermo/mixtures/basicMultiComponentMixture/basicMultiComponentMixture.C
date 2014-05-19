@@ -35,7 +35,8 @@ Foam::basicMultiComponentMixture::basicMultiComponentMixture
 )
 :
     species_(specieNames),
-    Y_(species_.size())
+    Y_(species_.size()),
+    active_(species_.size(),true)
 {
     forAll(species_, i)
     {

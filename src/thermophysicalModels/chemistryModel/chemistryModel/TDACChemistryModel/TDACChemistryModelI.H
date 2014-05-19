@@ -47,7 +47,7 @@ void Foam::TDACChemistryModel<CompType, ThermoType>::setActive(label i)
 {
     this->Y_[i].writeOpt()=IOobject::AUTO_WRITE;
     activeSpecies_[i]=true;
-
+    this->thermo().composition().setActive(i);
 }
 
 

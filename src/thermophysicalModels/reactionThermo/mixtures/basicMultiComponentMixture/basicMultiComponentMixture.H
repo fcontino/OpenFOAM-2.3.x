@@ -62,6 +62,8 @@ protected:
         //- Species mass fractions
         PtrList<volScalarField> Y_;
 
+        //- Bool list (true for active species)
+        List<bool> active_;
 
 public:
 
@@ -235,6 +237,14 @@ public:
                 const scalar p,
                 const scalar T
             ) const = 0;
+
+        // Per specie transport properties
+
+            //- Return true for active species
+            inline bool isActive(label specieI) const;
+
+            //- Set specieI active
+            inline void setActive(label specieI);
 };
 
 
