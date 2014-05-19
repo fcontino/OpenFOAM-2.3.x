@@ -41,14 +41,7 @@ Description
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-#include "tabulation.H"
-#include "IOstream.H"
-#include "dictionary.H"
-#include "Switch.H"
-#include "scalarField.H"
 #include "binaryTree.H"
-#include "Time.H"
-#include "fileName.H"
 #include "OFstream.H"
 
 namespace Foam

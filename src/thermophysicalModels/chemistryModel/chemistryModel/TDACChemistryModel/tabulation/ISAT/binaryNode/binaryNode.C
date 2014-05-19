@@ -23,10 +23,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "chemPointISAT.H"
-#include "scalarField.H"
 #include "binaryNode.H"
-#include "demandDrivenData.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

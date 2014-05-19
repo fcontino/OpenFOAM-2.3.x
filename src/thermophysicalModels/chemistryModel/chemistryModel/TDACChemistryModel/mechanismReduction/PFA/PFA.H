@@ -35,8 +35,6 @@ SourceFiles
 #ifndef PFA_H
 #define PFA_H
 
-#include "mechanismReduction.H"
-
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

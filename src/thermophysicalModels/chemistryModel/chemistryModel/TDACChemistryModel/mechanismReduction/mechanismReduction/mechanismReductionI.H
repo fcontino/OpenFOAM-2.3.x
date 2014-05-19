@@ -32,10 +32,7 @@ SourceFiles
 
 \*---------------------------------------------------------------------------*/
 
-#include "IOdictionary.H"
-#include "scalarField.H"
-#include "autoPtr.H"
-#include "runTimeSelectionTables.H"
+
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 

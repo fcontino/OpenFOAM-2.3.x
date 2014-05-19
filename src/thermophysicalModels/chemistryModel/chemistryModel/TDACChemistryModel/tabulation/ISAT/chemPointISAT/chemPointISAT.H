@@ -112,10 +112,6 @@ Description
 #define chemPointISAT_H
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-#include "IOstream.H"
-#include "dictionary.H"
-#include "Switch.H"
-#include "scalarField.H"
 
 
 namespace Foam
@@ -124,6 +120,10 @@ template<class CompType, class ThermoType>
 class binaryNode;
 template<class CompType, class ThermoType>
 class TDACChemistryModel;
+
+/*---------------------------------------------------------------------------*\
+                       Class chemPointISAT Declaration
+\*---------------------------------------------------------------------------*/
 
 template<class CompType, class ThermoType>
 class chemPointISAT

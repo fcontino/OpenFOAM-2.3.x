@@ -39,56 +39,60 @@ namespace Foam
     makeMechanismReductionTypes(psiChemistryModel, gasHThermoPhysics);
     makeMechanismReductionTypes
     (
-     psiChemistryModel,
-     constIncompressibleGasHThermoPhysics
-     );
+        psiChemistryModel,
+        constIncompressibleGasHThermoPhysics
+    );
     makeMechanismReductionTypes
     (
-     psiChemistryModel,
-     incompressibleGasHThermoPhysics)
-    ;
+        psiChemistryModel,
+        incompressibleGasHThermoPhysics
+    );
     makeMechanismReductionTypes(psiChemistryModel, icoPoly8HThermoPhysics);
+
     makeMechanismReductionTypes(rhoChemistryModel, constGasHThermoPhysics);
     makeMechanismReductionTypes(rhoChemistryModel, gasHThermoPhysics);
     makeMechanismReductionTypes
     (
-     rhoChemistryModel,
-     constIncompressibleGasHThermoPhysics
-     );
+        rhoChemistryModel,
+        constIncompressibleGasHThermoPhysics
+    );
     makeMechanismReductionTypes
     (
-     rhoChemistryModel,
-     incompressibleGasHThermoPhysics
-     );
-    makeMechanismReductionTypes(rhoChemistryModel, icoPoly8HThermoPhysics);
+        rhoChemistryModel,
+        incompressibleGasHThermoPhysics
+    );
+ makeMechanismReductionTypes(rhoChemistryModel, icoPoly8HThermoPhysics);
+
 
     // Chemistry solvers based on sensibleInternalEnergy
     makeMechanismReductionTypes(psiChemistryModel, constGasEThermoPhysics);
     makeMechanismReductionTypes(psiChemistryModel, gasEThermoPhysics);
     makeMechanismReductionTypes
     (
-     psiChemistryModel,
-     constIncompressibleGasEThermoPhysics
-     );
+        psiChemistryModel,
+        constIncompressibleGasEThermoPhysics
+    );
     makeMechanismReductionTypes
     (
-     psiChemistryModel,
-     incompressibleGasEThermoPhysics
-     );
+        psiChemistryModel,
+        incompressibleGasEThermoPhysics
+    );
     makeMechanismReductionTypes(psiChemistryModel, icoPoly8EThermoPhysics);
+
     makeMechanismReductionTypes(rhoChemistryModel, constGasEThermoPhysics);
     makeMechanismReductionTypes(rhoChemistryModel, gasEThermoPhysics);
     makeMechanismReductionTypes
     (
-     rhoChemistryModel,
-     constIncompressibleGasEThermoPhysics
-     );
+        rhoChemistryModel,
+        constIncompressibleGasEThermoPhysics
+    );
     makeMechanismReductionTypes
     (
-     rhoChemistryModel,
-     incompressibleGasEThermoPhysics
-     );
+        rhoChemistryModel,
+        incompressibleGasEThermoPhysics
+    );
     makeMechanismReductionTypes(rhoChemistryModel, icoPoly8EThermoPhysics);
+  
 }
 
 

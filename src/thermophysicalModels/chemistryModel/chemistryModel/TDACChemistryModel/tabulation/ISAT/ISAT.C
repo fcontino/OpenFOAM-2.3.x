@@ -24,13 +24,6 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "ISAT.H"
-#include "error.H"
-#include "TDACChemistryModel.H"
-#include "addToRunTimeSelectionTable.H"
-#include "Switch.H"
-#include "SLList.H"
-#include "OFstream.H"
-
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 

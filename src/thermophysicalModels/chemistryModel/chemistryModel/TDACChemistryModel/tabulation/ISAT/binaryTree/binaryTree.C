@@ -24,9 +24,6 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "binaryTree.H"
-#include "binaryNode.H"
-#include "demandDrivenData.H"
-#include "clockTime.H"
 #include "SortableList.H"
 
 

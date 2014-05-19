@@ -84,8 +84,6 @@ SourceFiles
 #ifndef DAC_H
 #define DAC_H
 
-#include "OFstream.H"
-#include "mechanismReduction.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

@@ -51,7 +51,7 @@ Description
 #ifndef binaryTree_H
 #define binaryTree_H
 
-#include "binaryNode.H"      
+#include "binaryNode.H"
 #include "chemPointISAT.H"
 
 namespace Foam

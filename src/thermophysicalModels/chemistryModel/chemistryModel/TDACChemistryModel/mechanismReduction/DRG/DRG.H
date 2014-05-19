@@ -35,7 +35,6 @@ SourceFiles
 #ifndef DRG_H
 #define DRG_H
 
-#include "mechanismReduction.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

@@ -98,8 +98,6 @@ SourceFiles
 #ifndef DRGEP_H
 #define DRGEP_H
 
-#include "mechanismReduction.H"
-
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

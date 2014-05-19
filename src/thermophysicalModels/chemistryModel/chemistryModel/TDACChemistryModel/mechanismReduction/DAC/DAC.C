@@ -23,9 +23,6 @@ along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 \*---------------------------------------------------------------------------*/
 
 #include "DAC.H"
-#include "TDACChemistryModel.H"
-#include "chemkinReader.H"
-
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 

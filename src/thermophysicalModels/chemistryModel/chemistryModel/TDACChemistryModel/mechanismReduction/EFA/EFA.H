@@ -35,12 +35,6 @@ SourceFiles
 #ifndef EFA_H
 #define EFA_H
 
-#include "mechanismReduction.H"
-#include <iostream>
-#include <string>
-#include <sstream>
-#include <algorithm>
-
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam

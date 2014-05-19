@@ -25,15 +25,8 @@ License
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-#include "IOstream.H"
-#include "dictionary.H"
-#include "Switch.H"
-#include "scalarField.H"
 #include "chemPointISAT.H"
-#include "binaryNode.H"
-#include "TDACChemistryModel.H"
 #include <limits>
-#include "scalarMatrices.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 

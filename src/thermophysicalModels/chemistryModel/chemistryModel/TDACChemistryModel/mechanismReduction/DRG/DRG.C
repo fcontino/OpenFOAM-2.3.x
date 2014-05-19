@@ -24,9 +24,6 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "DRG.H"
-#include "addToRunTimeSelectionTable.H"
-#include "simpleMatrix.H"
-
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 

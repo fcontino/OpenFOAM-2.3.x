@@ -38,8 +38,6 @@ SourceFiles
 
 #include "IOdictionary.H"
 #include "scalarField.H"
-#include "autoPtr.H"
-#include "fileName.H"
 #include "Switch.H"
 #include "runTimeSelectionTables.H"
 

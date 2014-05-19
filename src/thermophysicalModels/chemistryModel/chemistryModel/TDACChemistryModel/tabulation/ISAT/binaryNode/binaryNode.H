@@ -36,7 +36,6 @@ SourceFile
 #define BINARY_NODE_H
 
 #include "chemPointISAT.H"
-#include "scalarField.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

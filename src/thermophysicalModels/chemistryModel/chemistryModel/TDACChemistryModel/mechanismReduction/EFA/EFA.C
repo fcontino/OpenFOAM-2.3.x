@@ -24,7 +24,6 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "EFA.H"
-#include "addToRunTimeSelectionTable.H"
 #include "SortableListEFA.H"
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //

@@ -50,7 +50,9 @@ namespace Foam
      incompressibleGasHThermoPhysics)
     ;
     makeTabulationTypes(psiChemistryModel, icoPoly8HThermoPhysics);
+
     makeTabulationTypes(rhoChemistryModel, constGasHThermoPhysics);
+
     makeTabulationTypes(rhoChemistryModel, gasHThermoPhysics);
     makeTabulationTypes
     (
@@ -65,7 +67,9 @@ namespace Foam
     makeTabulationTypes(rhoChemistryModel, icoPoly8HThermoPhysics);
 
     // Chemistry solvers based on sensibleInternalEnergy
+
     makeTabulationTypes(psiChemistryModel, constGasEThermoPhysics);
+
     makeTabulationTypes(psiChemistryModel, gasEThermoPhysics);
     makeTabulationTypes
     (
@@ -78,7 +82,9 @@ namespace Foam
      incompressibleGasEThermoPhysics
      );
     makeTabulationTypes(psiChemistryModel, icoPoly8EThermoPhysics);
+
     makeTabulationTypes(rhoChemistryModel, constGasEThermoPhysics);
+
     makeTabulationTypes(rhoChemistryModel, gasEThermoPhysics);
     makeTabulationTypes
     (
@@ -91,6 +97,7 @@ namespace Foam
      incompressibleGasEThermoPhysics
      );
     makeTabulationTypes(rhoChemistryModel, icoPoly8EThermoPhysics);
+  
 
 }
 

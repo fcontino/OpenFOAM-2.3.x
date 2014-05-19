@@ -24,7 +24,6 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "PFA.H"
-#include "addToRunTimeSelectionTable.H"
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 

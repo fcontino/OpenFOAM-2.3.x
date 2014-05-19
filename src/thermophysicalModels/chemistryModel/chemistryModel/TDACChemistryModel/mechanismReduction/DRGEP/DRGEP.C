@@ -23,10 +23,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "DRGEP.H"
-#include "addToRunTimeSelectionTable.H"
 #include "SortableListDRGEP.H"
-#include <algorithm>
-#include <functional>
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
