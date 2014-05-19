@@ -110,4 +110,10 @@ inline void Foam::basicMultiComponentMixture::setActive(label specieI)
     active_[specieI] = true;
 }
 
+
+inline void Foam::basicMultiComponentMixture::setInactive(label specieI)
+{
+    active_[specieI] = false;
+}
+
 // ************************************************************************* //

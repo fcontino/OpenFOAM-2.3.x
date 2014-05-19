@@ -245,6 +245,10 @@ public:
 
             //- Set specieI active
             inline void setActive(label specieI);
+
+            //- Set specieI inactive
+            inline void setInactive(label specieI);
+
 };
 
 

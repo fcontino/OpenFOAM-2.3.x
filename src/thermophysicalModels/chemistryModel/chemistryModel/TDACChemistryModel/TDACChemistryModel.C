@@ -38,7 +38,7 @@ Foam::TDACChemistryModel<CompType, ThermoType>::TDACChemistryModel
     NsDAC_(this->nSpecie_),
     completeC_(this->nSpecie_,0.0),
     reactionsDisabled_(this->reactions_.size(), false),
-    activeSpecies_(this->nSpecie_,false),
+    activeSpecies_(this->nSpecie_,true),
     completeToSimplifiedIndex_(this->nSpecie_,-1),
     simplifiedToCompleteIndex_(this->nSpecie_),
     specieComp_(this->nSpecie_)
@@ -71,6 +71,32 @@ Foam::TDACChemistryModel<CompType, ThermoType>::TDACChemistryModel
             *this,
             *this
         );
+
+    //When the mechanism reduction method is used, the isActive flags for every
+    //species should be initialized (by default isActive is true)
+    if (mechRed_->active())
+    {
+        forAll(this->Y(), i)
+        {
+            IOobject header
+            (
+                this->Y()[i].name(),
+                mesh.time().timeName(),
+                mesh,
+                IOobject::NO_READ
+            );
+
+            // Check if the species file is specified.
+            // Since it is already created in basicMultiComponentMixture,
+            // we only specify NO_WRITE.
+            if (!header.headerOk())
+            {
+                this->Y_[i].writeOpt() = IOobject::NO_WRITE;
+                this->thermo().composition().setInactive(i);
+                activeSpecies_[i]=false;
+            }
+        }
+    }
 
     tabulation_ =
         tabulation<CompType, ThermoType>::New

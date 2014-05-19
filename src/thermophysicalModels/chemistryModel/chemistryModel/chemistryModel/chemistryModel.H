@@ -80,8 +80,8 @@ protected:
 
     typedef ThermoType thermoType;
 
-    // Private data
-
+    // Protected data
+    
         //- Reference to the field of specie mass fractions
         PtrList<volScalarField>& Y_;
 
