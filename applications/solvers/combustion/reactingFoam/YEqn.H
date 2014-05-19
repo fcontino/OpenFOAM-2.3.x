@@ -17,7 +17,14 @@ tmp<fv::convectionScheme<scalar> > mvConvection
 
     forAll(Y, i)
     {
-        if (Y[i].name() != inertSpecie)
+	bool isActive = composition.isActive(i);
+        //if not active on this proc, try to see if it is on another
+        //otherwise an error will occur because one of the procs will
+        //try to solve the transport equation and the other not
+        //if in serial the reduce function return immediately
+	reduce(isActive, orOp<bool>());
+
+        if (Y[i].name() != inertSpecie && isActive)
         {
             volScalarField& Yi = Y[i];
 
@@ -42,7 +49,7 @@ tmp<fv::convectionScheme<scalar> > mvConvection
             Yi.max(0.0);
             Yt += Yi;
         }
-        else
+        else if (Y[i].name() == inertSpecie)
         {
             inertIndex = i;
         }
