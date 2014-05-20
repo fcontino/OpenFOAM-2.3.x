@@ -772,7 +772,6 @@ bool Foam::chemPointISAT<CompType, ThermoType>::grow(const scalarField& phiq)
     if (isMechRedActive)
     {
         label activeAdded(0);
-        List<label> sAdded(spaceSize()-2);
         DynamicList<label> dimToAdd(0);
 
         //check if the difference of active species is lower than the maximum
@@ -791,7 +790,7 @@ bool Foam::chemPointISAT<CompType, ThermoType>::grow(const scalarField& phiq)
                 dimToAdd.append(i);
             }
             //then test if an active species in the current chemPoint
-            //corresponds to an inactive on in the query
+            //corresponds to an inactive on the query side
             if
             (
                 completeToSimplifiedIndex_[i]!=-1
@@ -800,7 +799,7 @@ bool Foam::chemPointISAT<CompType, ThermoType>::grow(const scalarField& phiq)
             {
                 activeAdded++;
                 //we don't need to add a new dimension but we count it to have
-                //control on the difference throuhg maxNumNewDim
+                //control on the difference through maxNumNewDim
             }
         }
 
@@ -811,15 +810,14 @@ bool Foam::chemPointISAT<CompType, ThermoType>::grow(const scalarField& phiq)
         }
 
         //the number of added dimension to the current chemPoint
-        activeAdded=0;
-        forAll(dimToAdd,dimi)
+        nActiveSpecies_ += dimToAdd.size();
+        simplifiedToCompleteIndex_.setSize(nActiveSpecies_);
+        forAll(dimToAdd,i)
         {
-            label i(dimToAdd[dimi]);
-            nActiveSpecies_++;
+            label si = nActiveSpecies_ - dimToAdd.size() + i;
             //add the new active species
-            simplifiedToCompleteIndex_.setSize(nActiveSpecies_,i);
-            completeToSimplifiedIndex_[i]=nActiveSpecies_-1;
-            sAdded[activeAdded++]=simplifiedToCompleteIndex_[nActiveSpecies_-1];
+            simplifiedToCompleteIndex_[si] = dimToAdd[i];
+            completeToSimplifiedIndex_[dimToAdd[i]] = si;
         }
 
         //update LT and A :
@@ -852,7 +850,7 @@ bool Foam::chemPointISAT<CompType, ThermoType>::grow(const scalarField& phiq)
             }
 
             //write the columns for temperature and pressure
-            for (label i=0; i<initNActiveSpecies+2; i++)
+            for (label i=0; i<initNActiveSpecies; i++)
             {
                 for (label j=1; j>=0; j--)
                 {
@@ -862,6 +860,16 @@ bool Foam::chemPointISAT<CompType, ThermoType>::grow(const scalarField& phiq)
                     A_[nActiveSpecies_+j][i]=Avar[initNActiveSpecies+j][i];
                 }
             }
+            //end with the diagonal elements for temperature and pressure
+            LT_[nActiveSpecies_][nActiveSpecies_]=
+                LTvar[initNActiveSpecies][initNActiveSpecies];
+            A_[nActiveSpecies_][nActiveSpecies_]=
+                Avar[initNActiveSpecies][initNActiveSpecies];
+            LT_[nActiveSpecies_+1][nActiveSpecies_+1]=
+                LTvar[initNActiveSpecies+1][initNActiveSpecies+1];
+            A_[nActiveSpecies_+1][nActiveSpecies_+1]=
+                Avar[initNActiveSpecies+1][initNActiveSpecies+1];
+
             for (label i=initNActiveSpecies; i<nActiveSpecies_;i++)
             {
                 LT_[i][i]=
