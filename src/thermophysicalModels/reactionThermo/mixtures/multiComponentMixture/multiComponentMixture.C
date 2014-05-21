@@ -132,7 +132,10 @@ const ThermoType& Foam::multiComponentMixture<ThermoType>::cellMixture
 
     for (label n=1; n<Y_.size(); n++)
     {
-        mixture_ += Y_[n][celli]/speciesData_[n].W()*speciesData_[n];
+        if(this->active_[n])
+        {
+            mixture_ += Y_[n][celli]/speciesData_[n].W()*speciesData_[n];
+        }
     }
 
     return mixture_;
@@ -152,9 +155,12 @@ const ThermoType& Foam::multiComponentMixture<ThermoType>::patchFaceMixture
 
     for (label n=1; n<Y_.size(); n++)
     {
-        mixture_ +=
-            Y_[n].boundaryField()[patchi][facei]
-           /speciesData_[n].W()*speciesData_[n];
+        if(this->active_[n])
+        {
+            mixture_ +=
+                Y_[n].boundaryField()[patchi][facei]
+               /speciesData_[n].W()*speciesData_[n];
+        }
     }
 
     return mixture_;
@@ -172,7 +178,10 @@ const ThermoType& Foam::multiComponentMixture<ThermoType>::cellVolMixture
     scalar rhoInv = 0.0;
     forAll(speciesData_, i)
     {
-        rhoInv += Y_[i][celli]/speciesData_[i].rho(p, T);
+        if(this->active_[i])
+        {
+            rhoInv += Y_[i][celli]/speciesData_[i].rho(p, T);
+        }
     }
 
     mixtureVol_ =
@@ -180,8 +189,11 @@ const ThermoType& Foam::multiComponentMixture<ThermoType>::cellVolMixture
 
     for (label n=1; n<Y_.size(); n++)
     {
-        mixtureVol_ +=
-            Y_[n][celli]/speciesData_[n].rho(p, T)/rhoInv*speciesData_[n];
+        if(this->active_[n])
+        {
+            mixtureVol_ +=
+                Y_[n][celli]/speciesData_[n].rho(p, T)/rhoInv*speciesData_[n];
+        }
     }
 
     return mixtureVol_;
@@ -201,8 +213,11 @@ patchFaceVolMixture
     scalar rhoInv = 0.0;
     forAll(speciesData_, i)
     {
-        rhoInv +=
-            Y_[i].boundaryField()[patchi][facei]/speciesData_[i].rho(p, T);
+        if(this->active_[i])
+        {
+            rhoInv +=
+                Y_[i].boundaryField()[patchi][facei]/speciesData_[i].rho(p, T);
+        }
     }
 
     mixtureVol_ =
@@ -211,9 +226,12 @@ patchFaceVolMixture
 
     for (label n=1; n<Y_.size(); n++)
     {
-        mixtureVol_ +=
-            Y_[n].boundaryField()[patchi][facei]/speciesData_[n].rho(p,T)
-          / rhoInv*speciesData_[n];
+        if(this->active_[n])
+        {
+            mixtureVol_ +=
+                Y_[n].boundaryField()[patchi][facei]/speciesData_[n].rho(p,T)
+              / rhoInv*speciesData_[n];
+        }
     }
 
     return mixtureVol_;
