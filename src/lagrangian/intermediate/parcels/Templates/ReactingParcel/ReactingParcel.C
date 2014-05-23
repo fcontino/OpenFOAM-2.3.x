@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011-2013 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2014 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -60,14 +60,14 @@ void Foam::ReactingParcel<ParcelType>::calcPhaseChange
     typedef typename TrackData::cloudType::reactingCloudType reactingCloudType;
     PhaseChangeModel<reactingCloudType>& phaseChange = td.cloud().phaseChange();
 
-    if (!phaseChange.active())
+    if (!phaseChange.active() || (YPhase < SMALL))
     {
         return;
     }
 
     scalar Tvap = phaseChange.Tvap(YComponents);
 
-    if (T < Tvap || YPhase < SMALL)
+    if (T < Tvap)
     {
         return;
     }
@@ -119,7 +119,6 @@ void Foam::ReactingParcel<ParcelType>::calcPhaseChange
     {
         // Average molecular weight of carrier mix - assumes perfect gas
         const scalar Wc = this->rhoc_*specie::RR*this->Tc_/this->pc_;
-
 
         forAll(dMassPC, i)
         {
@@ -285,7 +284,7 @@ void Foam::ReactingParcel<ParcelType>::cellValueSourceCorrection
 
     this->Tc_ += td.cloud().hsTrans()[cellI]/(this->Cpc_*massCellNew);
 
-    if (debug && (this->Tc_ < td.cloud().constProps().TMin()))
+    if (this->Tc_ < td.cloud().constProps().TMin())
     {
         if (debug)
         {
