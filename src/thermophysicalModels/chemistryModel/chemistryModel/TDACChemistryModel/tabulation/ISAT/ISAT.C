@@ -316,8 +316,9 @@ bool Foam::ISAT<CompType, ThermoType>::cleanAndBalance()
         treeModified = true;
     }
 
-    //return a bool to specify if the tree structure has been modified
-    return treeModified;
+    //return a bool to specify if the tree structure has been modified and is
+    //now below the user specified limit (true if not full)
+    return !chemisTree_.isFull();
 }
 
 
