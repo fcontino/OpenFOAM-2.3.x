@@ -46,7 +46,6 @@ template<class CompType, class ThermoType>
 void Foam::TDACChemistryModel<CompType, ThermoType>::setActive(label i)
 {
     this->Y_[i].writeOpt()=IOobject::AUTO_WRITE;
-    activeSpecies_[i]=true;
     this->thermo().composition().setActive(i);
 }
 
@@ -119,7 +118,8 @@ Foam::TDACChemistryModel<CompType, ThermoType>::simplifiedC()
 template<class CompType, class ThermoType>
 bool Foam::TDACChemistryModel<CompType, ThermoType>::isActive(label i)
 {
-    return activeSpecies_[i];
+    return this->thermo().composition().isActive(i);;
+
 }
 
 

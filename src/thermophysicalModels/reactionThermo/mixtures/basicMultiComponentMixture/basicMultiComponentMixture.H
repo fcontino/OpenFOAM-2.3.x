@@ -241,7 +241,7 @@ public:
         // Per specie transport properties
 
             //- Return true for active species
-            inline bool isActive(label specieI) const;
+            inline bool& isActive(label specieI);
 
             //- Set specieI active
             inline void setActive(label specieI);

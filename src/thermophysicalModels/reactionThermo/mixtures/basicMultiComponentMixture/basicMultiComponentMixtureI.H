@@ -99,7 +99,7 @@ inline Foam::tmp<Foam::volScalarField> Foam::basicMultiComponentMixture::fres
 }
 
 
-inline bool Foam::basicMultiComponentMixture::isActive(label specieI) const
+inline bool& Foam::basicMultiComponentMixture::isActive(label specieI)
 {
     return active_[specieI];
 }
@@ -108,12 +108,14 @@ inline bool Foam::basicMultiComponentMixture::isActive(label specieI) const
 inline void Foam::basicMultiComponentMixture::setActive(label specieI)
 {
     active_[specieI] = true;
+    Y_[specieI].writeOpt() = IOobject::AUTO_WRITE;
 }
 
 
 inline void Foam::basicMultiComponentMixture::setInactive(label specieI)
 {
     active_[specieI] = false;
+    Y_[specieI].writeOpt() = IOobject::NO_WRITE;
 }
 
 // ************************************************************************* //

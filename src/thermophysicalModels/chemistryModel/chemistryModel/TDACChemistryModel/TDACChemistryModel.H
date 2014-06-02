@@ -82,7 +82,6 @@ class TDACChemistryModel
         scalarField completeC_;
         scalarField simplifiedC_;
         Field<bool> reactionsDisabled_;
-        List<bool> activeSpecies_;
         Field<label> completeToSimplifiedIndex_;
         DynamicList<label> simplifiedToCompleteIndex_;
         List<List<chemkinReader::specieElement> > specieComp_;
