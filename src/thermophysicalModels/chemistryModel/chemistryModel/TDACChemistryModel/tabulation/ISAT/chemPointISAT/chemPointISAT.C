@@ -684,12 +684,19 @@ bool Foam::chemPointISAT<CompType, ThermoType>::inEOA(const scalarField& phiq)
     //Pressure
     epsTemp += sqr(dphi[spaceSize_-1]/(tolerance_*scaleFactor_[spaceSize_-1]));
 
+    scalar propT =
+        sqr(dphi[spaceSize_-2]/(tolerance_*scaleFactor_[spaceSize_-2]))
+      / (epsTemp+SMALL);
+    scalar propp =
+        sqr(dphi[spaceSize_-1]/(tolerance_*scaleFactor_[spaceSize_-1]))
+      / (epsTemp+SMALL);
+
     Info<< "Proportion Temperature: "
-        << sqr(dphi[spaceSize_-2]/(tolerance_*scaleFactor_[spaceSize_-2]))/epsTemp
-        <<endl;
+        << propT
+        << endl;
     Info<< "Proportion Pressure: "
-        << sqr(dphi[spaceSize_-1]/(tolerance_*scaleFactor_[spaceSize_-1]))/epsTemp
-        <<endl;
+        << propp
+        << endl;
 
     if (epsTemp > 1.0)
     {    
