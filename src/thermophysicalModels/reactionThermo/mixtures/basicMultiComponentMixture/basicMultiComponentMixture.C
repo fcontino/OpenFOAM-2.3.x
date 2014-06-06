@@ -36,6 +36,18 @@ Foam::basicMultiComponentMixture::basicMultiComponentMixture
 :
     species_(specieNames),
     Y_(species_.size()),
+    Ydefault_
+    (
+        IOobject
+        (
+            "Ydefault",
+            mesh.time().timeName(),
+            mesh,
+            IOobject::MUST_READ,
+            IOobject::AUTO_WRITE
+        ),
+        mesh
+    ),
     active_(species_.size(),true)
 {
     forAll(species_, i)
@@ -70,19 +82,6 @@ Foam::basicMultiComponentMixture::basicMultiComponentMixture
         }
         else
         {
-            volScalarField Ydefault
-            (
-                IOobject
-                (
-                    "Ydefault",
-                    mesh.time().timeName(),
-                    mesh,
-                    IOobject::MUST_READ,
-                    IOobject::NO_WRITE
-                ),
-                mesh
-            );
-
             Y_.set
             (
                 i,
@@ -96,7 +95,7 @@ Foam::basicMultiComponentMixture::basicMultiComponentMixture
                         IOobject::NO_READ,
                         IOobject::AUTO_WRITE
                     ),
-                    Ydefault
+                    Ydefault_
                 )
             );
         }

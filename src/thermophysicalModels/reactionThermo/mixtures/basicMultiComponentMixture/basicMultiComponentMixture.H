@@ -62,6 +62,9 @@ protected:
         //- Species mass fractions
         PtrList<volScalarField> Y_;
 
+        //- Ydefault field
+        volScalarField Ydefault_;
+
         //- Bool list (true for active species)
         List<bool> active_;
 
