@@ -545,7 +545,8 @@ binaryNode<CompType, ThermoType>* node
     timeTag_(chemistry_.time().timeOutputValue()),
     lastTimeUsed_(chemistry_.time().timeOutputValue()),
     toRemove_(false),
-    maxNumNewDim_(coeffsDict.lookupOrDefault("maxNumNewDim",0))
+    maxNumNewDim_(coeffsDict.lookupOrDefault("maxNumNewDim",0)),
+    printProportion_(coeffsDict.lookupOrDefault("printProportion",false))
 {
     tolerance_=tolerance;
 
@@ -650,6 +651,7 @@ bool Foam::chemPointISAT<CompType, ThermoType>::inEOA(const scalarField& phiq)
     bool isMechRedActive = chemistry_.mechRed()->active();
     label dim = (isMechRedActive) ? nActiveSpecies_ : spaceSize()-2;
     scalar epsTemp=0.0;
+    List<scalar> propEps(spaceSize(),0.0);
 
     for (label i=0; i<spaceSize()-2; i++)
     {
@@ -678,28 +680,59 @@ bool Foam::chemPointISAT<CompType, ThermoType>::inEOA(const scalarField& phiq)
             temp = sqr(dphi[i]/(tolerance_*scaleFactor_[i]));
         }
         epsTemp += sqr(temp);
+        if (printProportion_)
+        {
+            propEps[i] = temp;
+        }
     }
     //Temperature
     epsTemp += sqr(dphi[spaceSize_-2]/(tolerance_*scaleFactor_[spaceSize_-2]));
     //Pressure
     epsTemp += sqr(dphi[spaceSize_-1]/(tolerance_*scaleFactor_[spaceSize_-1]));
 
-    scalar propT =
-        sqr(dphi[spaceSize_-2]/(tolerance_*scaleFactor_[spaceSize_-2]))
-      / (epsTemp+SMALL);
-    scalar propp =
-        sqr(dphi[spaceSize_-1]/(tolerance_*scaleFactor_[spaceSize_-1]))
-      / (epsTemp+SMALL);
-
-    Info<< "Proportion Temperature: "
-        << propT
-        << endl;
-    Info<< "Proportion Pressure: "
-        << propp
-        << endl;
+    if (printProportion_)
+    {
+        propEps[spaceSize_-2] =
+            sqr(dphi[spaceSize_-2]/(tolerance_*scaleFactor_[spaceSize_-2]));
+        propEps[spaceSize_-1] =
+            sqr(dphi[spaceSize_-1]/(tolerance_*scaleFactor_[spaceSize_-1]));
+    }
 
     if (epsTemp > 1.0)
-    {    
+    {
+        if (printProportion_)
+        {
+            scalar max=-1.0;
+            label maxIndex=-1;
+            for (label i=0; i<spaceSize(); i++)
+            {
+                if(max < propEps[i])
+                {
+                    max = propEps[i];
+                    maxIndex = i;
+                }
+            }
+            word propName;
+            if (maxIndex >= spaceSize_-2)
+            {
+                if(maxIndex == spaceSize_-2)
+                {
+                    propName = "T";
+                }
+                else if(maxIndex == spaceSize_-1)
+                {
+                    propName = "p";
+                }
+            }
+            else
+            {
+                propName = chemistry_.Y()[maxIndex].name();
+            }
+            Info<< "Direction maximum impact to error in ellipsoid: "
+                << propName << endl;
+            Info<< "Proportion to the total error on the retrieve: "
+                << max / (epsTemp+SMALL) << endl;
+        }
         return false;
     }
     else

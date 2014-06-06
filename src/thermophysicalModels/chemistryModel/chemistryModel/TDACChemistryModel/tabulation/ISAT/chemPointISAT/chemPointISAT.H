@@ -180,6 +180,8 @@ private:
     bool toRemove_;
 
     label maxNumNewDim_;
+
+    Switch printProportion_;
     
 
     //QR decomposition of a matrix
