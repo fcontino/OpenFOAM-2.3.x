@@ -25,7 +25,6 @@
 #include "TDACChemistryModel.H"
 #include "reactingMixture.H"
 #include "clockTime.H"
-#include "OFstream.H"
 
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
@@ -42,7 +41,12 @@ Foam::TDACChemistryModel<CompType, ThermoType>::TDACChemistryModel
     reactionsDisabled_(this->reactions_.size(), false),
     completeToSimplifiedIndex_(this->nSpecie_,-1),
     simplifiedToCompleteIndex_(this->nSpecie_),
-    specieComp_(this->nSpecie_)
+    specieComp_(this->nSpecie_),
+    cpuRetrieveFile_(this->path() + "/../cpu_retrieve.out"),
+    cpuReduceFile_(this->path() + "/../cpu_reduce.out"),
+    cpuSolveFile_(this->path() + "/../cpu_solve.out"),
+    cpuAddFile_(this->path() + "/../cpu_add.out"),
+    nActiveSpeciesFile_(this->path() + "/../nActiveSpecies.out")
 {
     IOdictionary thermoDict
     (
@@ -925,11 +929,6 @@ Foam::scalar Foam::TDACChemistryModel<CompType, ThermoType>::solve
         tabulation_->writePerformance();
 
         //write the cpu time analysis
-        OFstream cpuRetrieveFile_(this->path() + "/../cpu_retrieve.out");
-        OFstream cpuReduceFile_(this->path() + "/../cpu_reduce.out");
-        OFstream cpuSolveFile_(this->path() + "/../cpu_solve.out");
-        OFstream cpuAddFile_(this->path() + "/../cpu_add.out");
-
         const Time* runTime(&this->time());
         cpuRetrieveFile_
             <<runTime->timeOutputValue()<<"    "<<searchISATCpuTime_<<endl;
@@ -942,7 +941,6 @@ Foam::scalar Foam::TDACChemistryModel<CompType, ThermoType>::solve
 
 
         //write average number of species
-        OFstream nActiveSpeciesFile_(this->path() + "/../nActiveSpecies.out");
         nActiveSpeciesFile_
             <<runTime->timeOutputValue()<<"    "<<nActiveSpecies/nAvg<<endl;
     }

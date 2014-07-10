@@ -45,6 +45,7 @@ SourceFiles
 #include "mechanismReduction.H"
 #include "tabulation.H"
 #include "chemkinReader.H"
+#include "OFstream.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -91,6 +92,14 @@ class TDACChemistryModel
         //- Tabulation
         autoPtr<tabulation<CompType, ThermoType> > tabulation_;
 
+        //- Write the cpu time analysis
+        OFstream cpuRetrieveFile_;
+        OFstream cpuReduceFile_;
+        OFstream cpuSolveFile_;
+        OFstream cpuAddFile_;
+
+        //- Write average number of species
+        OFstream nActiveSpeciesFile_;
 
 public:
 
