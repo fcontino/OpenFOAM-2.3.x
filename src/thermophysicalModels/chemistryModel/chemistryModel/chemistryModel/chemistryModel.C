@@ -50,7 +50,6 @@ Foam::chemistryModel<CompType, ThermoType>::chemistryModel
 
     nSpecie_(Y_.size()),
     nReaction_(reactions_.size()),
-
     RR_(nSpecie_)
 {
     // create the fields for the chemistry sources

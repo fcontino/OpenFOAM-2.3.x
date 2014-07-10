@@ -24,6 +24,9 @@
 
 #include "TDACChemistryModel.H"
 #include "reactingMixture.H"
+#include "clockTime.H"
+#include "OFstream.H"
+
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
@@ -759,6 +762,15 @@ Foam::scalar Foam::TDACChemistryModel<CompType, ThermoType>::solve
     const DeltaTType& deltaT
 )
 {
+    //CPU time analysis
+    const clockTime clockTime_= clockTime();
+    clockTime_.timeIncrement();
+
+    scalar reduceMechCpuTime_=0.0;
+    scalar addNewLeafCpuTime_=0.0;
+    scalar solveChemistryCpuTime_=0.0;
+    scalar searchISATCpuTime_=0.0;
+
     CompType::correct();
 
     scalar deltaTMin = GREAT;
@@ -808,6 +820,9 @@ Foam::scalar Foam::TDACChemistryModel<CompType, ThermoType>::solve
         scalar timeLeft = deltaT[celli];
 
         scalarField Rphiq(this->nEqns(),0.0);
+
+        clockTime_.timeIncrement();
+
         // When tabulation is active (short-circuit evaluation for retrieve)
         // It first tries to retrieve the solution of the system with the
         // information stored through the tabulation method
@@ -818,6 +833,8 @@ Foam::scalar Foam::TDACChemistryModel<CompType, ThermoType>::solve
             {
                 c[i] = rhoi*Rphiq[i]/this->specieThermo_[i].W();
             }
+            searchISATCpuTime_ += clockTime_.timeIncrement();
+
         }
         // This position is reached when tabulation is not used OR
         // if the solution is not retrieved.
@@ -830,6 +847,9 @@ Foam::scalar Foam::TDACChemistryModel<CompType, ThermoType>::solve
                 //reduce mechanism change the number of species (only active)
                 mechRed_->reduceMechanism(c,Ti,pi);
             }
+
+            reduceMechCpuTime_ += clockTime_.timeIncrement();
+
             // Calculate the chemical source terms
             while (timeLeft > SMALL)
             {
@@ -857,6 +877,8 @@ Foam::scalar Foam::TDACChemistryModel<CompType, ThermoType>::solve
                 timeLeft -= dt;
             }
 
+            solveChemistryCpuTime_ += clockTime_.timeIncrement();
+
             // If tabulation is used, we add the information computed here to
             // the stored points (either expand or add)
             if (tabulation_->active())
@@ -869,6 +891,8 @@ Foam::scalar Foam::TDACChemistryModel<CompType, ThermoType>::solve
                 Rphiq[Rphiq.size()-1] = pi;
                 tabulation_->add(phiq, Rphiq, rhoi);
             }
+
+            addNewLeafCpuTime_ += clockTime_.timeIncrement();
 
             // When operations are done and if mechanism reduction is active,
             // the number of species (which also affects nEqns) is set back
@@ -894,6 +918,22 @@ Foam::scalar Foam::TDACChemistryModel<CompType, ThermoType>::solve
         tabulation_->update();
         //write the performance of the tabulation
         tabulation_->writePerformance();
+
+        //write the cpu time analysis
+        OFstream cpuRetrieveFile_(this->path() + "/../cpu_retrieve.out");
+        OFstream cpuReduceFile_(this->path() + "/../cpu_reduce.out");
+        OFstream cpuSolveFile_(this->path() + "/../cpu_solve.out");
+        OFstream cpuAddFile_(this->path() + "/../cpu_add.out");
+
+        const Time* runTime(&this->time());
+        cpuRetrieveFile_
+            <<runTime->timeOutputValue()<<"    "<<searchISATCpuTime_;
+        cpuReduceFile_
+            <<runTime->timeOutputValue()<<"    "<<reduceMechCpuTime_;
+        cpuSolveFile_
+            <<runTime->timeOutputValue()<<"    "<<solveChemistryCpuTime_;
+        cpuAddFile_
+            <<runTime->timeOutputValue()<<"    "<<addNewLeafCpuTime_;
     }
 
     return deltaTMin;
