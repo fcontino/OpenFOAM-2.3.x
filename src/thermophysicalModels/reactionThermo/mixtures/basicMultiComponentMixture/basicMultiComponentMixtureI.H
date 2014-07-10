@@ -104,6 +104,10 @@ inline bool& Foam::basicMultiComponentMixture::isActive(label specieI)
     return active_[specieI];
 }
 
+inline Foam::List<bool>& Foam::basicMultiComponentMixture::isActive()
+{
+    return active_;
+}
 
 inline void Foam::basicMultiComponentMixture::setActive(label specieI)
 {

@@ -246,6 +246,9 @@ public:
             //- Return true for active species
             inline bool& isActive(label specieI);
 
+            //- Return the bool list of active species
+            inline List<bool>& isActive();
+
             //- Set specieI active
             inline void setActive(label specieI);
 
