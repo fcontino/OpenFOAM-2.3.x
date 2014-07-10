@@ -765,11 +765,14 @@ Foam::scalar Foam::TDACChemistryModel<CompType, ThermoType>::solve
     //CPU time analysis
     const clockTime clockTime_= clockTime();
     clockTime_.timeIncrement();
-
     scalar reduceMechCpuTime_=0.0;
     scalar addNewLeafCpuTime_=0.0;
     scalar solveChemistryCpuTime_=0.0;
     scalar searchISATCpuTime_=0.0;
+
+    //Average number of active species
+    scalar nActiveSpecies = 0.0;
+    scalar nAvg = 0.0;
 
     CompType::correct();
 
@@ -846,6 +849,8 @@ Foam::scalar Foam::TDACChemistryModel<CompType, ThermoType>::solve
             {
                 //reduce mechanism change the number of species (only active)
                 mechRed_->reduceMechanism(c,Ti,pi);
+                nActiveSpecies += mechRed_->NsSimp();
+                nAvg++;
             }
 
             reduceMechCpuTime_ += clockTime_.timeIncrement();
@@ -927,13 +932,19 @@ Foam::scalar Foam::TDACChemistryModel<CompType, ThermoType>::solve
 
         const Time* runTime(&this->time());
         cpuRetrieveFile_
-            <<runTime->timeOutputValue()<<"    "<<searchISATCpuTime_;
+            <<runTime->timeOutputValue()<<"    "<<searchISATCpuTime_<<endl;
         cpuReduceFile_
-            <<runTime->timeOutputValue()<<"    "<<reduceMechCpuTime_;
+            <<runTime->timeOutputValue()<<"    "<<reduceMechCpuTime_<<endl;
         cpuSolveFile_
-            <<runTime->timeOutputValue()<<"    "<<solveChemistryCpuTime_;
+            <<runTime->timeOutputValue()<<"    "<<solveChemistryCpuTime_<<endl;
         cpuAddFile_
-            <<runTime->timeOutputValue()<<"    "<<addNewLeafCpuTime_;
+            <<runTime->timeOutputValue()<<"    "<<addNewLeafCpuTime_<<endl;
+
+
+        //write average number of species
+        OFstream nActiveSpeciesFile_(this->path() + "/../nActiveSpecies.out");
+        nActiveSpeciesFile_
+            <<runTime->timeOutputValue()<<"    "<<nActiveSpecies/nAvg<<endl;
     }
 
     return deltaTMin;
