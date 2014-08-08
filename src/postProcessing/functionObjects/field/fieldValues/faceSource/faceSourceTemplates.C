@@ -54,7 +54,8 @@ template<class Type>
 Foam::tmp<Foam::Field<Type> > Foam::fieldValues::faceSource::getFieldValues
 (
     const word& fieldName,
-    const bool mustGet
+    const bool mustGet,
+    const bool applyOrientation
 ) const
 {
     typedef GeometricField<Type, fvsPatchField, surfaceMesh> sf;
@@ -62,7 +63,7 @@ Foam::tmp<Foam::Field<Type> > Foam::fieldValues::faceSource::getFieldValues
 
     if (source_ != stSampledSurface && obr_.foundObject<sf>(fieldName))
     {
-        return filterField(obr_.lookupObject<sf>(fieldName), true);
+        return filterField(obr_.lookupObject<sf>(fieldName), applyOrientation);
     }
     else if (obr_.foundObject<vf>(fieldName))
     {
@@ -103,7 +104,7 @@ Foam::tmp<Foam::Field<Type> > Foam::fieldValues::faceSource::getFieldValues
         }
         else
         {
-            return filterField(fld, true);
+            return filterField(fld, applyOrientation);
         }
     }
 
@@ -115,6 +116,7 @@ Foam::tmp<Foam::Field<Type> > Foam::fieldValues::faceSource::getFieldValues
             "Foam::fieldValues::faceSource::getFieldValues"
             "("
                 "const word&, "
+                "const bool, "
                 "const bool"
             ") const"
         )   << "Field " << fieldName << " not found in database"
@@ -193,7 +195,14 @@ Type Foam::fieldValues::faceSource::processSameTypeValues
         }
         case opWeightedAverage:
         {
-            result = sum(values)/sum(weightField);
+            if (weightField.size())
+            {
+                result = sum(values)/sum(weightField);
+            }
+            else
+            {
+                result = sum(values)/values.size();
+            }
             break;
         }
         case opAreaAverage:
@@ -234,9 +243,7 @@ Type Foam::fieldValues::faceSource::processSameTypeValues
                 scalar mean = component(meanValue, d);
                 scalar& res = setComponent(result, d);
 
-                res =
-                    sqrt(sum(magSf*sqr(vals - mean))/(magSf.size()*sum(magSf)))
-                   /mean;
+                res = sqrt(sum(magSf*sqr(vals - mean))/sum(magSf))/mean;
             }
 
             break;
@@ -267,22 +274,20 @@ Type Foam::fieldValues::faceSource::processValues
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 template<class Type>
-bool Foam::fieldValues::faceSource::writeValues(const word& fieldName)
+bool Foam::fieldValues::faceSource::writeValues
+(
+    const word& fieldName,
+    const scalarField& weightField,
+    const bool orient
+)
 {
     const bool ok = validField<Type>(fieldName);
 
     if (ok)
     {
-        Field<Type> values(getFieldValues<Type>(fieldName));
-        scalarField weightField(values.size(), 1.0);
-
-        if (weightFieldName_ != "none")
-        {
-            weightField = getFieldValues<scalar>(weightFieldName_, true);
-        }
+        Field<Type> values(getFieldValues<Type>(fieldName, true, orient));
 
         vectorField Sf;
-
         if (surfacePtr_.valid())
         {
             // Get oriented Sf
@@ -291,13 +296,12 @@ bool Foam::fieldValues::faceSource::writeValues(const word& fieldName)
         else
         {
             // Get oriented Sf
-            Sf = filterField(mesh().Sf(), false);
+            Sf = filterField(mesh().Sf(), true);
         }
 
         // Combine onto master
         combineFields(values);
         combineFields(Sf);
-        combineFields(weightField);
 
         // Write raw values on surface if specified
         if (surfaceWriterPtr_.valid())
@@ -332,8 +336,13 @@ bool Foam::fieldValues::faceSource::writeValues(const word& fieldName)
             }
         }
 
+
         // apply scale factor and weight field
-        values *= scaleFactor_*weightField;
+        values *= scaleFactor_;
+        if (weightField.size())
+        {
+            values *= weightField;
+        }
 
         if (Pstream::master())
         {
@@ -378,7 +387,8 @@ Foam::tmp<Foam::Field<Type> > Foam::fieldValues::faceSource::filterField
             (
                 "fieldValues::faceSource::filterField"
                 "("
-                    "const GeometricField<Type, fvPatchField, volMesh>&"
+                    "const GeometricField<Type, fvPatchField, volMesh>&, "
+                    "const bool"
                 ") const"
             )   << type() << " " << name_ << ": "
                 << sourceTypeNames_[source_] << "(" << sourceName_ << "):"

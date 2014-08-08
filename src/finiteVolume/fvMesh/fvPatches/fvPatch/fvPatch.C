@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011-2013 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2014 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -39,6 +39,7 @@ namespace Foam
     defineRunTimeSelectionTable(fvPatch, polyPatch);
     addToRunTimeSelectionTable(fvPatch, fvPatch, polyPatch);
 }
+
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
@@ -140,7 +141,9 @@ const Foam::scalarField& Foam::fvPatch::magSf() const
 
 Foam::tmp<Foam::vectorField> Foam::fvPatch::delta() const
 {
-    return Cf() - Cn();
+    // Use patch-normal delta for all non-coupled BCs
+    const vectorField nHat(nf());
+    return nHat*(nHat & (Cf() - Cn()));
 }
 
 
