@@ -40,7 +40,7 @@ Foam::tabulation<CompType, ThermoType>::New
          IOobject
          (
               "thermophysicalProperties",
-              dict.path(),
+              dict.db().time().constant(),
               dict.db(),
               IOobject::MUST_READ_IF_MODIFIED,
               IOobject::NO_WRITE,

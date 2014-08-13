@@ -35,18 +35,21 @@ Foam::mechanismReduction<CompType,ThermoType>::New
     TDACChemistryModel<CompType,ThermoType>& chemistry
 )
 {
+    Info << dict.path()<<endl;
     IOdictionary thermoDict
     (
         IOobject
         (
             "thermophysicalProperties",
-            dict.path(),
+            dict.db().time().constant(),
             dict.db(),
             IOobject::MUST_READ_IF_MODIFIED,
             IOobject::NO_WRITE,
             false
         )
     );
+
+    Info << "test1"<<endl;
 
     word thermoTypeName;
 

@@ -64,7 +64,7 @@ Foam::TDACChemistryModel<CompType, ThermoType>::TDACChemistryModel
     speciesTable speciesTab = this->thermo().composition().species();
     chemkinReader tchemRead(thermoDict, speciesTab);
     const HashTable<List<chemkinReader::specieElement> >& specComp =
-    tchemRead.specieComposition();
+        tchemRead.specieComposition();
     forAll(specieComp_,i)
     {
         specieComp_[i] = specComp[this->Y()[i].name()];
@@ -939,10 +939,12 @@ Foam::scalar Foam::TDACChemistryModel<CompType, ThermoType>::solve
         cpuAddFile_
             <<runTime->timeOutputValue()<<"    "<<addNewLeafCpuTime_<<endl;
 
-
-        //write average number of species
-        nActiveSpeciesFile_
-            <<runTime->timeOutputValue()<<"    "<<nActiveSpecies/nAvg<<endl;
+        if (mechRed_->active())
+        {
+            //write average number of species
+            nActiveSpeciesFile_
+                <<runTime->timeOutputValue()<<"    "<<nActiveSpecies/nAvg<<endl;
+        }
     }
 
     return deltaTMin;
