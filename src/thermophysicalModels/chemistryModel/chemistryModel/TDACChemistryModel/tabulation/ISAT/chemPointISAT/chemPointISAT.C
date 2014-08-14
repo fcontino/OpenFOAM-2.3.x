@@ -677,7 +677,7 @@ bool Foam::chemPointISAT<CompType, ThermoType>::inEOA(const scalarField& phiq)
         }
         else
         {
-            temp = sqr(dphi[i]/(tolerance_*scaleFactor_[i]));
+            temp = dphi[i]/(tolerance_*scaleFactor_[i]);
         }
         epsTemp += sqr(temp);
         if (printProportion_)
