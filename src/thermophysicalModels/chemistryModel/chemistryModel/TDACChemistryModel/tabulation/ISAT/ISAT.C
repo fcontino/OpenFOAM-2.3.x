@@ -263,7 +263,7 @@ bool Foam::ISAT<CompType, ThermoType>::grow
     //if the solution RphiQ is still within the tolerance we try to grow it
     //in some cases this might result in a failure and the grow function of
     //the chemPoint returns false
-    if (phi0->checkSolution(phiq,Rphiq))
+    if (phi0->checkSolution(phiq,Rphiq) && phi0->nGrowth() <= maxGrowth_)
     {
         return phi0->grow(phiq);
     }
