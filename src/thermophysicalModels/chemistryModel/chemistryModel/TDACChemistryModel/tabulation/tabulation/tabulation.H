@@ -151,6 +151,8 @@ public:
         // to increase the performance of the retrieve
         virtual bool update() = 0;
 
+        //- Resets the NumRetrieve counter for each chempoint of the BST
+        virtual void resetNumRetrieve() = 0;
 };
 
 

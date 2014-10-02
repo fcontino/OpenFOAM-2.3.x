@@ -833,4 +833,30 @@ bool Foam::binaryTree<CompType, ThermoType>::isFull()
 }
 
 
+template<class CompType, class ThermoType>
+void Foam::binaryTree<CompType, ThermoType>::resetNumRetrieve()
+{
+    //has to go along each chP of the tree
+    if (size_>0)
+    {
+        //first finds the first leaf
+        bn* nextBn = root_->nodeLeft();
+        chP* chP0 = root_->leafLeft();
+        while (chP0==NULL)
+        {
+            chP0 = nextBn->leafLeft();
+            nextBn = nextBn->nodeLeft();
+        }
+        chP0->resetNumRetrieve();
+        
+        //then go to each successor
+        chP* nextChP = treeSuccessor(chP0);
+        while (nextChP!=NULL)
+        {
+            nextChP->resetNumRetrieve();
+            nextChP = treeSuccessor(nextChP);
+        }
+    }
+}
+
 // ************************************************************************* //

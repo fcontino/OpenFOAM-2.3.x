@@ -104,6 +104,7 @@ private:
         OFstream nGrowthFile_;
         OFstream nAddFile_;
         OFstream sizeFile_;
+        OFstream nRetrievePerChPFile_;
 
         bool cleaningRequired_;
 
@@ -244,6 +245,10 @@ public:
             {
                 return cleanAndBalance();
             }
+    
+    
+            //- Resets the NumRetrieve counter for each chempoint of the BST
+            void resetNumRetrieve();
 
 };
 

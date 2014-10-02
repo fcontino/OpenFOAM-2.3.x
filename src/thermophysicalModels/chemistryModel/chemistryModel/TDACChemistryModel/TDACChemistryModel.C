@@ -806,6 +806,12 @@ Foam::scalar Foam::TDACChemistryModel<CompType, ThermoType>::solve
 
     scalarField c(this->nSpecie_);
     scalarField c0(this->nSpecie_);
+    
+    // Resets the number of retrieves associated to each leaf of the tree
+    if (tabulation_->active())
+    {
+        tabulation_->resetNumRetrieve();
+    }
 
     forAll(rho, celli)
     {
@@ -846,7 +852,7 @@ Foam::scalar Foam::TDACChemistryModel<CompType, ThermoType>::solve
         // This position is reached when tabulation is not used OR
         // if the solution is not retrieved.
         // In the latter case, it adds the information to the tabulation
-        // (it will either expand the current data or add a new stored poin).
+        // (it will either expand the current data or add a new stored point).
         else
         {
             if (mechRed_->active())

@@ -236,6 +236,9 @@ public:
         
         //- ListFull
         bool isFull();
+    
+        //- Resets the NumRetrieve counter for each chempoint
+        void resetNumRetrieve();
 };
 
 

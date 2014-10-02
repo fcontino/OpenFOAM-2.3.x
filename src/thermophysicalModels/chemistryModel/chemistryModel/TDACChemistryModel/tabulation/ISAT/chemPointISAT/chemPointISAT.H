@@ -183,6 +183,13 @@ private:
 
     Switch printProportion_;
     
+    //id of the chemPoint
+    static label NumChP_;
+    const label chemPointID_;
+    
+    //variable to store the number of retrieves the chemPoint will generate at
+    //each time step
+    label NumRetrieve_;
 
     //QR decomposition of a matrix
     //Input : nCols cols number
@@ -369,6 +376,17 @@ public:
         {
         return maxNumNewDim_;
         }
+    
+        inline const label& chemPointID()
+        {
+            return chemPointID_;
+        }
+    
+        inline const label& numRetrieve()
+        {
+            return NumRetrieve_;
+        }
+
 
         //- ISAT functions
 
@@ -408,7 +426,12 @@ public:
         // otherwise, the newly computed mapping is associated to the initial
         // composition and added to the tree.
         bool checkSolution(const scalarField& phiq, const scalarField& Rphiq);
-
+    
+        //- Increases the number of retrieves the chempoint has generated
+        void increaseNumRetrieve();
+    
+        //- Reset the number of retrieves at each time step
+        void resetNumRetrieve();
 
 };
 

@@ -80,8 +80,8 @@ Foam::ISAT<CompType, ThermoType>::ISAT
     nGrowthFile_(chemistryProperties.name().path() + "/../growth_isat.out"),
     nAddFile_(chemistryProperties.name().path() + "/../add_isat.out"),
     sizeFile_(chemistryProperties.name().path() + "/../size_isat.out"),
+    nRetrievePerChPFile_(chemistryProperties.name().path() + "/../retrievePerChP_isat.out"),
     cleaningRequired_(false)
-
 {
     if (this->active_)
     {
@@ -553,6 +553,7 @@ bool Foam::ISAT<CompType, ThermoType>::retrieve
 
     if (retrieved)
     {
+        phi0->increaseNumRetrieve();
         scalar elapsedTime =
             runTime_->timeOutputValue() - phi0->timeTag();
         scalar maxElapsedTime =
@@ -695,6 +696,41 @@ void Foam::ISAT<CompType, ThermoType>::writePerformance()
     nAdd_ = 0;
 
     sizeFile_ << runTime_->timeOutputValue() << "    " <<  this->size() <<endl;
+    
+    //writes the number of retrieves for each chempoint
+    nRetrievePerChPFile_ << runTime_->timeOutputValue() << "    ";
+    if (chemisTree_->size()>0)
+    {
+        //first finds the first leaf
+        binaryNode<CompType, ThermoType>* nextBn =
+            chemisTree_->root()->nodeLeft();
+        chemPointISAT<CompType, ThermoType>* chP0 =
+            chemisTree_->root()->leaftLeft();
+        while (chP0==NULL)
+        {
+            chP0 = nextBn->leafLeft();
+            nextBn = nextBn->nodeLeft();
+        }
+        nRetrievePerChPFile_ << chP0->chemPointID() << "    " <<
+            chP0->numRetrieve() << "    ";
+        //then go to each successor
+        chemPointISAT<CompType, ThermoType>* nextChP =
+        chemisTree_->treeSuccessor(chP0);
+        while (nextChP!=NULL)
+        {
+            nRetrievePerChPFile_ << nextChP->chemPointID() << "    " <<
+                nextChP->numRetrieve() << "    ";
+            nextChP = treeSuccessor(nextChP);
+        }
+    }
+    nRetrievePerChPFile_ <<endl;
+}
+
+
+template<class CompType, class ThermoType>
+void Foam::ISAT<CompType, ThermoType>::resetNumRetrieve()
+{
+    chemisTree_->resetNumRetrieve();
 }
 
 

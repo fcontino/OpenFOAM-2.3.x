@@ -546,8 +546,11 @@ binaryNode<CompType, ThermoType>* node
     lastTimeUsed_(chemistry_.time().timeOutputValue()),
     toRemove_(false),
     maxNumNewDim_(coeffsDict.lookupOrDefault("maxNumNewDim",0)),
-    printProportion_(coeffsDict.lookupOrDefault("printProportion",false))
+    printProportion_(coeffsDict.lookupOrDefault("printProportion",false)),
+    chemPointID_(NumChP_),
+    NumRetrieve_(0)
 {
+    NumChP_++;
     tolerance_=tolerance;
 
     bool isMechRedActive = chemistry_.mechRed()->active();
@@ -637,9 +640,12 @@ Foam::chemPointISAT<CompType, ThermoType>::chemPointISAT
     timeTag_(p.timeTag()),
     lastTimeUsed_(p.lastTimeUsed()),
     toRemove_(p.toRemove()),
-    maxNumNewDim_(p.maxNumNewDim())
+    maxNumNewDim_(p.maxNumNewDim()),
+    chemPointID_(NumChP_),
+    NumRetrieve_(0)
 {
-   tolerance_ = p.tolerance();
+    NumChP_++;
+    tolerance_ = p.tolerance();
 }
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
@@ -964,4 +970,18 @@ bool Foam::chemPointISAT<CompType, ThermoType>::grow(const scalarField& phiq)
     qrUpdate(LT_,dim, u, v);
     nGrowth_++;
     return true;
+}
+
+
+template<class CompType, class ThermoType>
+void Foam::chemPointISAT<CompType, ThermoType>::increaseNumRetrieve()
+{
+    this->NumRetrieve_++;
+}
+
+
+template<class CompType, class ThermoType>
+void Foam::chemPointISAT<CompType, ThermoType>::resetNumRetrieve()
+{
+    this->NumRetrieve_ = 0;
 }
