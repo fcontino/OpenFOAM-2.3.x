@@ -720,7 +720,7 @@ void Foam::ISAT<CompType, ThermoType>::writePerformance()
         {
             nRetrievePerChPFile_ << nextChP->chemPointID() << "    " <<
                 nextChP->numRetrieve() << "    ";
-            nextChP = treeSuccessor(nextChP);
+            nextChP = chemisTree_.treeSuccessor(nextChP);
         }
     }
     nRetrievePerChPFile_ <<endl;
