@@ -705,7 +705,7 @@ void Foam::ISAT<CompType, ThermoType>::writePerformance()
         binaryNode<CompType, ThermoType>* nextBn =
             chemisTree_.root()->nodeLeft();
         chemPointISAT<CompType, ThermoType>* chP0 =
-            chemisTree_.root()->leaftLeft();
+            chemisTree_.root()->leafLeft();
         while (chP0==NULL)
         {
             chP0 = nextBn->leafLeft();
