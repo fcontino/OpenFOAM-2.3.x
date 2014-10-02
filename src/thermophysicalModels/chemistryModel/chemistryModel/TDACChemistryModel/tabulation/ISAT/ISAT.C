@@ -699,13 +699,13 @@ void Foam::ISAT<CompType, ThermoType>::writePerformance()
     
     //writes the number of retrieves for each chempoint
     nRetrievePerChPFile_ << runTime_->timeOutputValue() << "    ";
-    if (chemisTree_->size()>0)
+    if (chemisTree_.size()>0)
     {
         //first finds the first leaf
         binaryNode<CompType, ThermoType>* nextBn =
-            chemisTree_->root()->nodeLeft();
+            chemisTree_.root()->nodeLeft();
         chemPointISAT<CompType, ThermoType>* chP0 =
-            chemisTree_->root()->leaftLeft();
+            chemisTree_.root()->leaftLeft();
         while (chP0==NULL)
         {
             chP0 = nextBn->leafLeft();
@@ -715,7 +715,7 @@ void Foam::ISAT<CompType, ThermoType>::writePerformance()
             chP0->numRetrieve() << "    ";
         //then go to each successor
         chemPointISAT<CompType, ThermoType>* nextChP =
-        chemisTree_->treeSuccessor(chP0);
+        chemisTree_.treeSuccessor(chP0);
         while (nextChP!=NULL)
         {
             nRetrievePerChPFile_ << nextChP->chemPointID() << "    " <<
@@ -730,7 +730,7 @@ void Foam::ISAT<CompType, ThermoType>::writePerformance()
 template<class CompType, class ThermoType>
 void Foam::ISAT<CompType, ThermoType>::resetNumRetrieve()
 {
-    chemisTree_->resetNumRetrieve();
+    chemisTree_.resetNumRetrieve();
 }
 
 
