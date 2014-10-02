@@ -184,7 +184,7 @@ private:
     Switch printProportion_;
     
     //id of the chemPoint
-    static label NumChP_;
+    static label NumChP_ = 0;
     const label chemPointID_;
     
     //variable to store the number of retrieves the chemPoint will generate at

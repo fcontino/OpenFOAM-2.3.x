@@ -517,9 +517,6 @@ Foam::chemPointISAT<CompType, ThermoType>::pythag(scalar a, scalar b)
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
 template<class CompType, class ThermoType>
-Foam::chemPointISAT<CompType, ThermoType>::NumChP_ = 0;
-
-template<class CompType, class ThermoType>
 Foam::chemPointISAT<CompType, ThermoType>::chemPointISAT
 (
 TDACChemistryModel<CompType, ThermoType>& chemistry,
