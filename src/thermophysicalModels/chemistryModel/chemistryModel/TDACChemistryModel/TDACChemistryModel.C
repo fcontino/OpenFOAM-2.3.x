@@ -932,7 +932,7 @@ Foam::scalar Foam::TDACChemistryModel<CompType, ThermoType>::solve
         //write the performance of the tabulation
         tabulation_->writePerformance();
         //every time-step, look if the tabulation should be updated
-        tabulation_->update();
+        //tabulation_->update();
         
         //write the cpu time analysis
         const Time* runTime(&this->time());
