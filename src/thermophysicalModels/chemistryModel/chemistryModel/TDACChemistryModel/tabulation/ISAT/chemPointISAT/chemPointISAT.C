@@ -516,7 +516,7 @@ Foam::chemPointISAT<CompType, ThermoType>::pythag(scalar a, scalar b)
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-label template<class CompType, class ThermoType>
+template<class CompType, class ThermoType>
 Foam::chemPointISAT<CompType, ThermoType>::NumChP_ = 0;
 
 template<class CompType, class ThermoType>
