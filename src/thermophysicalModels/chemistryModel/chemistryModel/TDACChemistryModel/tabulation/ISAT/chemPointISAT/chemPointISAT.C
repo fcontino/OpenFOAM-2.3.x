@@ -519,6 +519,7 @@ Foam::chemPointISAT<CompType, ThermoType>::pythag(scalar a, scalar b)
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
+
 template<class CompType, class ThermoType>
 Foam::chemPointISAT<CompType, ThermoType>::chemPointISAT
 (

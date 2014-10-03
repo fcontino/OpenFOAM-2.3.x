@@ -840,13 +840,7 @@ void Foam::binaryTree<CompType, ThermoType>::resetNumRetrieve()
     if (size_>0)
     {
         //first finds the first leaf
-        bn* nextBn = root_->nodeLeft();
-        chP* chP0 = root_->leafLeft();
-        while (chP0==NULL)
-        {
-            chP0 = nextBn->leafLeft();
-            nextBn = nextBn->nodeLeft();
-        }
+        chP* chP0 = treeMin();
         chP0->resetNumRetrieve();
         
         //then go to each successor
