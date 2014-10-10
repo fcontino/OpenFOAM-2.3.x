@@ -36,7 +36,7 @@ template<class CompType, class ThermoType>
 Foam::scalar Foam::chemPointISAT<CompType, ThermoType>::tolerance_;
 
 template<class CompType, class ThermoType>
-Foam::label Foam::chemPointISAT<CompType, ThermoType>::NumChP_ = 0;
+Foam::label Foam::chemPointISAT<CompType, ThermoType>::numChP_ = 0;
 
 // * * * * * * * * * * * * Private Member Functions  * * * * * * * * * * * * //
 
@@ -550,10 +550,10 @@ binaryNode<CompType, ThermoType>* node
     toRemove_(false),
     maxNumNewDim_(coeffsDict.lookupOrDefault("maxNumNewDim",0)),
     printProportion_(coeffsDict.lookupOrDefault("printProportion",false)),
-    chemPointID_(NumChP_),
-    NumRetrieve_(0)
+    chemPointID_(numChP_),
+    numRetrieve_(0)
 {
-    NumChP_++;
+    numChP_++;
     tolerance_=tolerance;
 
     bool isMechRedActive = chemistry_.mechRed()->active();
@@ -644,10 +644,10 @@ Foam::chemPointISAT<CompType, ThermoType>::chemPointISAT
     lastTimeUsed_(p.lastTimeUsed()),
     toRemove_(p.toRemove()),
     maxNumNewDim_(p.maxNumNewDim()),
-    chemPointID_(NumChP_),
-    NumRetrieve_(0)
+    chemPointID_(numChP_),
+    numRetrieve_(0)
 {
-    NumChP_++;
+    numChP_++;
     tolerance_ = p.tolerance();
 }
 
@@ -977,14 +977,7 @@ bool Foam::chemPointISAT<CompType, ThermoType>::grow(const scalarField& phiq)
 
 
 template<class CompType, class ThermoType>
-void Foam::chemPointISAT<CompType, ThermoType>::increaseNumRetrieve()
-{
-    this->NumRetrieve_++;
-}
-
-
-template<class CompType, class ThermoType>
 void Foam::chemPointISAT<CompType, ThermoType>::resetNumRetrieve()
 {
-    this->NumRetrieve_ = 0;
+    this->numRetrieve_ = 0;
 }

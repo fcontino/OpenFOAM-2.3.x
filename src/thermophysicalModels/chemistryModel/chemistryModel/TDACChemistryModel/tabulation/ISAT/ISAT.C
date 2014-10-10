@@ -258,6 +258,7 @@ bool Foam::ISAT<CompType, ThermoType>::grow
     {
         cleaningRequired_ = true;
         phi0->toRemove() = true;
+        return false;
     }
 
     //if the solution RphiQ is still within the tolerance we try to grow it
@@ -294,7 +295,9 @@ bool Foam::ISAT<CompType, ThermoType>::cleanAndBalance()
             chPMaxLifeTime_
           * runTime_->timeToUserTime(runTime_->deltaTValue());
 
-        if ((elapsedTime > maxElapsedTime) || (x->nGrowth() > maxGrowth_))
+        //the condition on the maxGrowth number has been replaced by a
+        //condition on the number of retrieves associated to the leaf
+        if ((elapsedTime > maxElapsedTime) || (x->numRetrieve() < 1))
         {
             chemisTree_.deleteLeaf(x);
             treeModified=true;

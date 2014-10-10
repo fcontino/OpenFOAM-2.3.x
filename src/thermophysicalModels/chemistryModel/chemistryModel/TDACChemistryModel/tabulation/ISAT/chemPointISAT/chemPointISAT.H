@@ -184,12 +184,12 @@ private:
     Switch printProportion_;
     
     //id of the chemPoint
-    static label NumChP_;
+    static label numChP_;
     const label chemPointID_;
     
     //variable to store the number of retrieves the chemPoint will generate at
     //each time step
-    label NumRetrieve_;
+    label numRetrieve_;
 
     //QR decomposition of a matrix
     //Input : nCols cols number
@@ -384,7 +384,7 @@ public:
     
         inline const label& numRetrieve()
         {
-            return NumRetrieve_;
+            return numRetrieve_;
         }
 
 
@@ -430,7 +430,7 @@ public:
         //- Increases the number of retrieves the chempoint has generated
         void increaseNumRetrieve();
     
-        //- Reset the number of retrieves at each time step
+        //- Resets the number of retrieves at each time step
         void resetNumRetrieve();
 
 };
