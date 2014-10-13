@@ -979,7 +979,7 @@ bool Foam::chemPointISAT<CompType, ThermoType>::grow(const scalarField& phiq)
 template<class CompType, class ThermoType>
 void Foam::chemPointISAT<CompType, ThermoType>::increaseNumRetrieve()
 {
-    this->NumRetrieve_++;
+    this->numRetrieve_++;
 }
 
 
