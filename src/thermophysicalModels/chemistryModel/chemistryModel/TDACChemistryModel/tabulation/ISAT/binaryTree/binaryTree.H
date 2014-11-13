@@ -40,11 +40,6 @@ Description
     L: leafLeft_
     R: leafRight_
 
-    The binaryTree class manages two DynamicList: nodeList_ and chemPointList_
-    which store pointer to the nodes and leafs (chemPoint) in the binary tree.
-    Therefore, there is only one instance of the node and leaf and the class
-    using them (e.g. ISAT, chemistryModel,...) are only
-    dealing with pointers
 
  \*---------------------------------------------------------------------------*/
 

@@ -69,10 +69,10 @@ binaryNode<CompType, ThermoType>::binaryNode
     binaryNode<CompType, ThermoType> *bn
 )
 :
-    leafLeft_(bn->elementLeft()),
-    leafRight_(bn->elementRight()),
-    nodeLeft_(bn->left()), 
-    nodeRight_(bn->right()),
+    leafLeft_(bn->leafLeft()),
+    leafRight_(bn->leafRight()),
+    nodeLeft_(bn->nodeLeft()),
+    nodeRight_(bn->nodeRight()),
     parent_(bn->parent()),
     v_(bn->v()),
     a_(bn->a())
