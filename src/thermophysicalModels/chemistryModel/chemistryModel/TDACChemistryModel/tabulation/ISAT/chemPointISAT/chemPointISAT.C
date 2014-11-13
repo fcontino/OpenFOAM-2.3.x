@@ -686,19 +686,27 @@ bool Foam::chemPointISAT<CompType, ThermoType>::inEOA(const scalarField& phiq)
         }
     }
     //Temperature
-    epsTemp += sqr(dphi[spaceSize_-2]/(tolerance_*scaleFactor_[spaceSize_-2]));
+    epsTemp +=
+        sqr
+        (
+            LT_[dim][dim]*dphi[dim]
+           +LT_[dim][dim+1]*dphi[dim+1]
+        );
     //Pressure
-    epsTemp += sqr(dphi[spaceSize_-1]/(tolerance_*scaleFactor_[spaceSize_-1]));
+    epsTemp += sqr(LT_[dim+1][dim+1]*dphi[dim+1]);
 
     if (printProportion_)
     {
         propEps[spaceSize_-2] =
-            sqr(dphi[spaceSize_-2]/(tolerance_*scaleFactor_[spaceSize_-2]));
-        propEps[spaceSize_-1] =
-            sqr(dphi[spaceSize_-1]/(tolerance_*scaleFactor_[spaceSize_-1]));
-    }
+        sqr
+        (
+            LT_[dim][dim]*dphi[dim]
+           +LT_[dim][dim+1]*dphi[dim+1]
+        );
 
-    if (epsTemp > 1.0)
+        propEps[spaceSize_-1] = sqr(LT_[dim+1][dim+1]*dphi[dim+1]);
+    }
+    if (epsTemp > 1.0+tolerance_)
     {
         if (printProportion_)
         {
@@ -932,10 +940,12 @@ bool Foam::chemPointISAT<CompType, ThermoType>::grow(const scalarField& phiq)
     scalarField phiTilde(dim, 0.0);
     scalar normPhiTilde = 0.0;
     //p' = L^T.(p-phi)
+
     for (label i=0; i<dim; i++)
     {
         for (label j=i; j<dim-2; j++)//LT is upper triangular
         {
+
             label sj = j;
             if (isMechRedActive)
             {
@@ -960,8 +970,9 @@ bool Foam::chemPointISAT<CompType, ThermoType>::grow(const scalarField& phiq)
             v[i] += phiTilde[j]*LT_[j][i];
         }
     }
-    scalarRectangularMatrix QT(dim,dim,0.0);
+
     qrUpdate(LT_,dim, u, v);
     nGrowth_++;
+
     return true;
 }
