@@ -126,6 +126,12 @@ void Foam::ODESolver::solve
         // Integrate as far as possible up to step.dxTry
         solve(x, y, step);
 
+        // Prevent the case (for chemical species) where it becomes negative
+        forAll(y, i)
+        {
+            y[i] = max(y[i], 0.0);
+        }
+
         // Check if reached xEnd
         if ((x - xEnd)*(xEnd - xStart) >= 0)
         {
