@@ -113,21 +113,23 @@ bool Foam::seulex::seul
     label nSteps = nSeq_[k];
     scalar dx = dxTot/nSteps;
 
-    for (label i=0; i<n_; i++)
+    scalarSquareMatrix a(y.size());
+    for (label i=0; i<y.size(); i++)
     {
-        for (label j=0; j<n_; j++)
+        for (label j=0; j<y.size(); j++)
         {
-            a_[i][j] = -dfdy_[i][j];
+            a[i][j] = -dfdy_[i][j];
         }
 
-        a_[i][i] += 1.0/dx;
+        a[i][i] += 1.0/dx;
     }
 
-    LUDecompose(a_, pivotIndices_);
+    LUDecompose(a, pivotIndices_);
 
     scalar xnew = x0 + dx;
+
     odes_.derivatives(xnew, y0, dy_);
-    LUBacksubstitute(a_, pivotIndices_, dy_);
+    LUBacksubstitute(a, pivotIndices_, dy_);
 
     yTemp_ = y0;
 
@@ -139,22 +141,24 @@ bool Foam::seulex::seul
         if (nn == 1 && k<=1)
         {
             scalar dy1 = 0.0;
-            for (label i=0; i<n_; i++)
+
+            forAll(y,i)
             {
                 dy1 += sqr(dy_[i]/scale[i]);
             }
+
             dy1 = sqrt(dy1);
 
             odes_.derivatives(x0 + dx, yTemp_, dydx_);
-            for (label i=0; i<n_; i++)
+            forAll(y,i)
             {
                 dy_[i] = dydx_[i] - dy_[i]/dx;
             }
 
-            LUBacksubstitute(a_, pivotIndices_, dy_);
+            LUBacksubstitute(a, pivotIndices_, dy_);
 
             scalar dy2 = 0.0;
-            for (label i=0; i<n_; i++)
+            forAll(y,i)
             {
                 dy2 += sqr(dy_[i]/scale[i]);
             }
@@ -168,10 +172,11 @@ bool Foam::seulex::seul
         }
 
         odes_.derivatives(xnew, yTemp_, dy_);
-        LUBacksubstitute(a_, pivotIndices_, dy_);
+
+        LUBacksubstitute(a, pivotIndices_, dy_);
     }
 
-    for (label i=0; i<n_; i++)
+    forAll(y,i)
     {
         y[i] = yTemp_[i] + dy_[i];
     }
@@ -189,14 +194,14 @@ void Foam::seulex::extrapolate
 {
     for (int j=k-1; j>0; j--)
     {
-        for (label i=0; i<n_; i++)
+        for (label i=0; i<y.size(); i++)
         {
             table[j-1][i] =
                 table[j][i] + coeff_[k][j]*(table[j][i] - table[j-1][i]);
         }
     }
 
-    for (int i=0; i<n_; i++)
+    for (int i=0; i<y.size(); i++)
     {
         y[i] = table[0][i] + coeff_[k][0]*(table[0][i] - y[i]);
     }
@@ -212,7 +217,11 @@ void Foam::seulex::solve
 {
     temp_[0] = GREAT;
     scalar dx = step.dxTry;
-    y0_ = y;
+
+    forAll(y,yi)
+    {
+        y0_[yi] = y[yi];
+    }
     dxOpt_[0] = mag(0.1*dx);
 
     if (step.first || step.prevReject)
@@ -227,7 +236,7 @@ void Foam::seulex::solve
         kTarg_ = max(1, min(kMaxx_ - 1, int(logTol)));
     }
 
-    forAll(scale_, i)
+    forAll(y, i)
     {
         scale_[i] = absTol_[i] + relTol_[i]*mag(y[i]);
     }
@@ -260,6 +269,7 @@ void Foam::seulex::solve
 
         for (k=0; k<=kTarg_+1; k++)
         {
+            ySequence_.setSize(y.size());
             bool success = seul(x, y0_, dx, k, ySequence_, scale_);
 
             if (!success)
@@ -271,11 +281,14 @@ void Foam::seulex::solve
 
             if (k == 0)
             {
-                 y = ySequence_;
+                forAll(y,yi)
+                {
+                    y[yi] = ySequence_[yi];
+                }
             }
             else
             {
-                forAll(ySequence_, i)
+                forAll(y, i)
                 {
                     table_[k-1][i] = ySequence_[i];
                 }
@@ -285,12 +298,12 @@ void Foam::seulex::solve
             {
                 extrapolate(k, table_, y);
                 scalar err = 0.0;
-                forAll(scale_, i)
+                forAll(y, i)
                 {
                     scale_[i] = absTol_[i] + relTol_[i]*mag(y0_[i]);
                     err += sqr((y[i] - table_[0][i])/scale_[i]);
                 }
-                err = sqrt(err/n_);
+                err = sqrt(err/y.size());
                 if (err > 1.0/SMALL || (k > 1 && err >= errOld))
                 {
                     step.reject = true;
