@@ -706,7 +706,7 @@ bool Foam::chemPointISAT<CompType, ThermoType>::inEOA(const scalarField& phiq)
 
         propEps[spaceSize_-1] = sqr(LT_[dim+1][dim+1]*dphi[dim+1]);
     }
-    if (epsTemp > 1.0+tolerance_)
+    if (sqrt(epsTemp) > 1.0+tolerance_)
     {
         if (printProportion_)
         {
@@ -856,6 +856,18 @@ bool Foam::chemPointISAT<CompType, ThermoType>::grow(const scalarField& phiq)
                 //we don't need to add a new dimension but we count it to have
                 //control on the difference through maxNumNewDim
             }
+            //finally test if both points have inactive species but
+            //with a dphi!=0
+            if
+            (
+                completeToSimplifiedIndex_[i]==-1
+             && chemistry_.completeToSimplifiedIndex()[i]==-1
+             && dphi[i] != 0.0
+            )
+            {
+                activeAdded++;
+                dimToAdd.append(i);
+            }
         }
 
         //if the number of added dimension is too large, growth fail
@@ -945,7 +957,6 @@ bool Foam::chemPointISAT<CompType, ThermoType>::grow(const scalarField& phiq)
     {
         for (label j=i; j<dim-2; j++)//LT is upper triangular
         {
-
             label sj = j;
             if (isMechRedActive)
             {
@@ -973,6 +984,6 @@ bool Foam::chemPointISAT<CompType, ThermoType>::grow(const scalarField& phiq)
 
     qrUpdate(LT_,dim, u, v);
     nGrowth_++;
-
+    
     return true;
 }
