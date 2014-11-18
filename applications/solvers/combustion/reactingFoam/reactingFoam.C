@@ -50,6 +50,7 @@ int main(int argc, char *argv[])
     #include "readTimeControls.H"
     #include "compressibleCourantNo.H"
     #include "setInitialDeltaT.H"
+    #include "createOutput.H"
 
     pimpleControl pimple(mesh);
 
@@ -91,6 +92,8 @@ int main(int argc, char *argv[])
         Info<< "ExecutionTime = " << runTime.elapsedCpuTime() << " s"
             << "  ClockTime = " << runTime.elapsedClockTime() << " s"
             << nl << endl;
+
+	#include "writeAverage.H"
     }
 
     Info<< "End\n" << endl;
