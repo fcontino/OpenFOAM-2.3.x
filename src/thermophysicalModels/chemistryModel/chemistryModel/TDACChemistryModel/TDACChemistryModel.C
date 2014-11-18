@@ -849,6 +849,7 @@ Foam::scalar Foam::TDACChemistryModel<CompType, ThermoType>::solve
         // (it will either expand the current data or add a new stored poin).
         else
         {
+            clockTime_.timeIncrement();
             if (mechRed_->active())
             {
                 //reduce mechanism change the number of species (only active)
