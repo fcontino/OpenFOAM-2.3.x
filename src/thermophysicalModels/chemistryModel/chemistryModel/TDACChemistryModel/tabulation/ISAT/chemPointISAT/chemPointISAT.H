@@ -40,7 +40,7 @@ Description
     be in the EOA of phi. It follows that, dphi=phiq-phi and to test if phiq
     is in the ellipsoid there are two methods. First, compare r=||dphi|| with 
     rmin and rmax. If r < rmin, phiq is in the EOA. If r > rmax, phiq is out of
-    the EOA. This operations is O(spaceSize) and is performed first.
+    the EOA. This operations is O(completeSpaceSize) and is performed first.
     If rmin < r < rmax, then the second method is used:
     	||L^T.dphi|| <= 1 to be in the EOA.
     
@@ -157,7 +157,7 @@ private:
     binaryNode<CompType, ThermoType>* node_;
     
     //- The size of the composition space (size of the vector phi)
-    label spaceSize_;
+    label completeSpaceSize_;
     
     //- Number of times the element has been grown
     label nGrowth_;
@@ -251,7 +251,7 @@ public:
             const scalarRectangularMatrix& A,
             const scalarField& scaleFactor,
             const scalar& tolerance,
-            const label& spaceSize,
+            const label& completeSpaceSize,
             const dictionary& coeffsDict,
             binaryNode<CompType, ThermoType>* node = NULL
         );
@@ -281,9 +281,9 @@ public:
             return nGrowth_;
         }
         
-        inline label& spaceSize()
+        inline label& completeSpaceSize()
         {
-            return spaceSize_;
+            return completeSpaceSize_;
         }
         
         inline const scalarField& phi() const
@@ -349,7 +349,27 @@ public:
         {
             return simplifiedToCompleteIndex_;
         }
-        
+
+        inline label simplifiedToCompleteIndex(label i)
+        {
+            if (i < nActiveSpecies_)
+            {
+                return simplifiedToCompleteIndex_[i];
+            }
+            else if (i == nActiveSpecies_)
+            {
+                return completeSpaceSize_-2;
+            }
+            else if (i == nActiveSpecies_+1)
+            {
+                return completeSpaceSize_-1;
+            }
+            else
+            {
+                return -1;
+            }
+        }
+
         inline const scalar& timeTag()
         {
             return timeTag_;

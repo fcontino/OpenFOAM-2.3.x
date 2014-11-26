@@ -526,7 +526,7 @@ const scalarField& Rphi,
 const scalarRectangularMatrix& A,
 const scalarField& scaleFactor,
 const scalar& tolerance,
-const label& spaceSize,
+const label& completeSpaceSize,
 const dictionary& coeffsDict,
 binaryNode<CompType, ThermoType>* node
 )
@@ -537,10 +537,10 @@ binaryNode<CompType, ThermoType>* node
     A_(A),
     scaleFactor_(scaleFactor),
     node_(node),
-    spaceSize_(spaceSize),
+    completeSpaceSize_(completeSpaceSize),
     nGrowth_(0),
     nActiveSpecies_(chemistry.mechRed()->NsSimp()),
-    completeToSimplifiedIndex_(spaceSize-2),
+    completeToSimplifiedIndex_(completeSpaceSize-2),
     simplifiedToCompleteIndex_(nActiveSpecies_),
     timeTag_(chemistry_.time().timeOutputValue()),
     lastTimeUsed_(chemistry_.time().timeOutputValue()),
@@ -553,7 +553,7 @@ binaryNode<CompType, ThermoType>* node
     bool isMechRedActive = chemistry_.mechRed()->active();
     if (isMechRedActive)
     {
-        for (label i=0; i<spaceSize-2; i++)
+        for (label i=0; i<completeSpaceSize-2; i++)
         {
             completeToSimplifiedIndex_[i] =
                 chemistry.completeToSimplifiedIndex()[i];
@@ -565,54 +565,51 @@ binaryNode<CompType, ThermoType>* node
         }
     }
     
-    label dim = spaceSize;
+    label reduOrCompDim = completeSpaceSize;
     if (isMechRedActive)
     {
-        dim = nActiveSpecies_+2;
+        reduOrCompDim = nActiveSpecies_+2;
     }
 
     //SVD decomposition A= U*D*V^T 
     scalarRectangularMatrix Atmp(A);//A computed in ISAT.C
-    scalarRectangularMatrix B(dim,dim,0.0);
-    DiagonalMatrix<scalar> diag(dim,0.0);
-    svd(Atmp, dim, dim, diag, B);
+    scalarRectangularMatrix B(reduOrCompDim,reduOrCompDim,0.0);
+    DiagonalMatrix<scalar> diag(reduOrCompDim,0.0);
+    svd(Atmp, reduOrCompDim, reduOrCompDim, diag, B);
 
     //replace the value of vector diag by max(diag, 1/2), first ISAT paper, Pope
-    for (label i=0; i<dim; i++)
+    for (label i=0; i<reduOrCompDim; i++)
     {
         diag[i]=max(diag[i], 0.5);
     }
 
     //rebuild A with max length, tol and scale factor before QR decomposition
-    scalarRectangularMatrix Atilde(dim,dim);
+    scalarRectangularMatrix Atilde(reduOrCompDim,reduOrCompDim);
     //result stored in Atilde
     multiply(Atilde, Atmp, diag, B.T());
 
-    for (label i=0; i<dim-2; i++)
+    for (label i=0; i<reduOrCompDim; i++)//on species loop
     {
-        for (label j=0; j<dim; j++)
+        for (label j=0; j<reduOrCompDim; j++)//species, T and p loop
         {
-            label si=i;
+            label compi=i;
             if (isMechRedActive)
             {
-                si = simplifiedToCompleteIndex_[i];
+                compi = simplifiedToCompleteIndex(i);
             }
-            //B*A/tolerance (where B is diagonal with inverse of scale factors)
-            //B*A is the same as dividing each line by the scale factor
+            //SF*A/tolerance (where SF is diagonal with inverse of scale factors)
+            //SF*A is the same as dividing each line by the scale factor
             //corresponding to the species of this line
-            Atilde[i][j] /= (tolerance*scaleFactor[si]);
+            Atilde[i][j] /= (tolerance*scaleFactor[compi]);
         }
     }
-    //Temperature
-    Atilde[dim-2][dim-2] = diag[dim-2]/(tolerance*scaleFactor[spaceSize_-2]);
-    //Pressure
-    Atilde[dim-1][dim-1] = diag[dim-1]/(tolerance*scaleFactor[spaceSize_-1]);
-
+  
     //The object LT_ (the transpose of the Q) describe the EOA, since we have
     // A^T B^T B A that should be factorized into L Q^T Q L^T and is set in the
     //qrDecompose function
     LT_ = scalarRectangularMatrix(Atilde);
-    qrDecompose(dim,LT_);
+
+    qrDecompose(reduOrCompDim,LT_);
 }
 
 
@@ -629,7 +626,7 @@ Foam::chemPointISAT<CompType, ThermoType>::chemPointISAT
     A_(p.A()),
     scaleFactor_(p.scaleFactor()),
     node_(p.node()),
-    spaceSize_(p.spaceSize()),
+    completeSpaceSize_(p.completeSpaceSize()),
     nGrowth_(p.nGrowth()),
     nActiveSpecies_(p.nActiveSpecies()),
     completeToSimplifiedIndex_(p.completeToSimplifiedIndex()),
@@ -649,11 +646,11 @@ bool Foam::chemPointISAT<CompType, ThermoType>::inEOA(const scalarField& phiq)
 {
     scalarField dphi=phiq-phi();
     bool isMechRedActive = chemistry_.mechRed()->active();
-    label dim = (isMechRedActive) ? nActiveSpecies_ : spaceSize()-2;
+    label dim = (isMechRedActive) ? nActiveSpecies_ : completeSpaceSize()-2;
     scalar epsTemp=0.0;
-    List<scalar> propEps(spaceSize(),0.0);
+    List<scalar> propEps(completeSpaceSize(),0.0);
 
-    for (label i=0; i<spaceSize()-2; i++)
+    for (label i=0; i<completeSpaceSize()-2; i++)
     {
         scalar temp(0.0);
         //When mechanism reduction is inactive OR on active species
@@ -672,8 +669,8 @@ bool Foam::chemPointISAT<CompType, ThermoType>::inEOA(const scalarField& phiq)
                 label sj=(isMechRedActive) ? simplifiedToCompleteIndex_[j] : j;
                 temp += LT_[si][j]*dphi[sj];
             }
-            temp += LT_[si][nActiveSpecies_]*dphi[spaceSize()-2];
-            temp += LT_[si][nActiveSpecies_+1]*dphi[spaceSize()-1];
+            temp += LT_[si][nActiveSpecies_]*dphi[completeSpaceSize()-2];
+            temp += LT_[si][nActiveSpecies_+1]*dphi[completeSpaceSize()-1];
         }
         else
         {
@@ -689,22 +686,22 @@ bool Foam::chemPointISAT<CompType, ThermoType>::inEOA(const scalarField& phiq)
     epsTemp +=
         sqr
         (
-            LT_[dim][dim]*dphi[spaceSize()-2]
-           +LT_[dim][dim+1]*dphi[spaceSize()-1]
+            LT_[dim][dim]*dphi[completeSpaceSize()-2]
+           +LT_[dim][dim+1]*dphi[completeSpaceSize()-1]
         );
     //Pressure
-    epsTemp += sqr(LT_[dim+1][dim+1]*dphi[spaceSize()-1]);
+    epsTemp += sqr(LT_[dim+1][dim+1]*dphi[completeSpaceSize()-1]);
 
     if (printProportion_)
     {
-        propEps[spaceSize_-2] =
+        propEps[completeSpaceSize()-2] =
         sqr
         (
-            LT_[dim][dim]*dphi[spaceSize()-2]
-           +LT_[dim][dim+1]*dphi[spaceSize()-1]
+            LT_[dim][dim]*dphi[completeSpaceSize()-2]
+           +LT_[dim][dim+1]*dphi[completeSpaceSize()-1]
         );
 
-        propEps[spaceSize_-1] = sqr(LT_[dim+1][dim+1]*dphi[spaceSize()-1]);
+        propEps[completeSpaceSize()-1] = sqr(LT_[dim+1][dim+1]*dphi[completeSpaceSize()-1]);
     }
     if (sqrt(epsTemp) > 1.0+tolerance_)
     {
@@ -712,7 +709,7 @@ bool Foam::chemPointISAT<CompType, ThermoType>::inEOA(const scalarField& phiq)
         {
             scalar max=-1.0;
             label maxIndex=-1;
-            for (label i=0; i<spaceSize(); i++)
+            for (label i=0; i<completeSpaceSize(); i++)
             {
                 if(max < propEps[i])
                 {
@@ -721,13 +718,13 @@ bool Foam::chemPointISAT<CompType, ThermoType>::inEOA(const scalarField& phiq)
                 }
             }
             word propName;
-            if (maxIndex >= spaceSize_-2)
+            if (maxIndex >= completeSpaceSize()-2)
             {
-                if(maxIndex == spaceSize_-2)
+                if(maxIndex == completeSpaceSize()-2)
                 {
                     propName = "T";
                 }
-                else if(maxIndex == spaceSize_-1)
+                else if(maxIndex == completeSpaceSize()-1)
                 {
                     propName = "p";
                 }
@@ -764,14 +761,14 @@ bool Foam::chemPointISAT<CompType, ThermoType>::checkSolution
     const scalarRectangularMatrix& Avar = A();
     bool isMechRedActive = chemistry_.mechRed()->active();
     scalar dRl = 0.0;
-    label dim = spaceSize()-2;
+    label dim = completeSpaceSize()-2;
     if (isMechRedActive)
     {
         dim = nActiveSpecies_;
     }
 
     //Since we build only the solution for the species, T and p are not included
-    for (label i=0; i<spaceSize()-2; i++)
+    for (label i=0; i<completeSpaceSize()-2; i++)
     {
         dRl = 0.0;
         if (isMechRedActive)
@@ -785,8 +782,8 @@ bool Foam::chemPointISAT<CompType, ThermoType>::checkSolution
                     label sj=simplifiedToCompleteIndex_[j];
                     dRl += Avar[si][j]*dphi[sj];
                 }
-                dRl += Avar[si][nActiveSpecies_]*dphi[spaceSize()-2];
-                dRl += Avar[si][nActiveSpecies_+1]*dphi[spaceSize()-1];
+                dRl += Avar[si][nActiveSpecies_]*dphi[completeSpaceSize()-2];
+                dRl += Avar[si][nActiveSpecies_+1]*dphi[completeSpaceSize()-1];
             }
             else
             {
@@ -795,7 +792,7 @@ bool Foam::chemPointISAT<CompType, ThermoType>::checkSolution
         }
         else
         {
-            for (label j=0; j<spaceSize(); j++)
+            for (label j=0; j<completeSpaceSize(); j++)
             {
                 dRl += Avar[i][j]*dphi[j];
             }
@@ -820,7 +817,7 @@ template<class CompType, class ThermoType>
 bool Foam::chemPointISAT<CompType, ThermoType>::grow(const scalarField& phiq)
 {
     scalarField dphi = phiq - phi();
-    label dim = spaceSize();
+    label dim = completeSpaceSize();
     label initNActiveSpecies(nActiveSpecies_);
     bool isMechRedActive = chemistry_.mechRed()->active();
 
@@ -831,7 +828,7 @@ bool Foam::chemPointISAT<CompType, ThermoType>::grow(const scalarField& phiq)
 
         //check if the difference of active species is lower than the maximum
         //number of new dimensions allowed
-        for (label i=0; i<spaceSize()-2; i++)
+        for (label i=0; i<completeSpaceSize()-2; i++)
         {
             //first test if the current chemPoint has an inactive species
             //corresponding to an active one in the query point
@@ -964,8 +961,8 @@ bool Foam::chemPointISAT<CompType, ThermoType>::grow(const scalarField& phiq)
             }
             phiTilde[i] += LT_[i][j]*dphi[sj];
         }
-        phiTilde[i] += LT_[i][dim-2]*dphi[spaceSize()-2];
-        phiTilde[i] += LT_[i][dim-1]*dphi[spaceSize()-1];
+        phiTilde[i] += LT_[i][dim-2]*dphi[completeSpaceSize()-2];
+        phiTilde[i] += LT_[i][dim-1]*dphi[completeSpaceSize()-1];
         normPhiTilde += sqr(phiTilde[i]);
     }
     scalar invSqrNormPhiTilde = 1.0/normPhiTilde;
