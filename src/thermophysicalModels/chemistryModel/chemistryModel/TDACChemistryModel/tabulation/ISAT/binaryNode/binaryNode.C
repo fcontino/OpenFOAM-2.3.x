@@ -57,7 +57,7 @@ binaryNode<CompType, ThermoType>::binaryNode
     nodeLeft_(NULL),
     nodeRight_(NULL),
     parent_(parent),
-    v_(elementLeft->spaceSize(),0.0)
+    v_(elementLeft->completeSpaceSize(),0.0)
 {
     calcV(elementLeft, elementRight, v_);
     a_ = calcA(elementLeft, elementRight);
@@ -100,13 +100,13 @@ binaryNode<CompType, ThermoType>::calcV
     scalar epsTol = elementLeft->tolerance();
 
     //v = LT.T()*LT*phiDif
-    for (label i=0; i<elementLeft->spaceSize(); i++)
+    for (label i=0; i<elementLeft->completeSpaceSize(); i++)
     {
         label si = i;
         bool outOfIndexI = true;
         if (mechReductionActive)
         {
-            if (i<elementLeft->spaceSize()-2)
+            if (i<elementLeft->completeSpaceSize()-2)
             {
                 si = elementLeft->completeToSimplifiedIndex()[i];
                 outOfIndexI = (si==-1);
@@ -114,20 +114,20 @@ binaryNode<CompType, ThermoType>::calcV
             else//temperature and pressure
             {
                 outOfIndexI = false;
-                label dif = i-(elementLeft->spaceSize()-2);
+                label dif = i-(elementLeft->completeSpaceSize()-2);
                 si = elementLeft->nActiveSpecies()+dif;
             }
         }
         if (!mechReductionActive || (mechReductionActive && !(outOfIndexI)))
         {
             v[i]=0.0;
-            for (label j=0; j<elementLeft->spaceSize(); j++)
+            for (label j=0; j<elementLeft->completeSpaceSize(); j++)
             {
                 label sj = j;
                 bool outOfIndexJ = true;
                 if (mechReductionActive)
                 {
-                    if (j<elementLeft->spaceSize()-2)
+                    if (j<elementLeft->completeSpaceSize()-2)
                     {
                         sj = elementLeft->completeToSimplifiedIndex()[j];
                         outOfIndexJ = (sj==-1);
@@ -135,7 +135,7 @@ binaryNode<CompType, ThermoType>::calcV
                     else
                     {
                         outOfIndexJ = false;
-                        label dif = j-(elementLeft->spaceSize()-2);
+                        label dif = j-(elementLeft->completeSpaceSize()-2);
                         sj = elementLeft->nActiveSpecies()+dif;
                     }
                 }
@@ -173,8 +173,8 @@ scalar binaryNode<CompType, ThermoType>::calcA
 {
     scalar a = 0.0;
     scalarField phih = (elementLeft->phi()+elementRight->phi())/2;
-    label spaceSize = elementLeft->spaceSize();
-    for (label i=0; i<spaceSize; i++)
+    label completeSpaceSize = elementLeft->completeSpaceSize();
+    for (label i=0; i<completeSpaceSize; i++)
     {
         a += v_[i]*phih[i];
     }

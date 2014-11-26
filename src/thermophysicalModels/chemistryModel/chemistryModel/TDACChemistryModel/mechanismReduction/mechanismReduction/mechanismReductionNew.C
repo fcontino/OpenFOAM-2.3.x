@@ -49,8 +49,6 @@ Foam::mechanismReduction<CompType,ThermoType>::New
         )
     );
 
-    Info << "test1"<<endl;
-
     word thermoTypeName;
 
     if (thermoDict.isDict("thermoType"))
