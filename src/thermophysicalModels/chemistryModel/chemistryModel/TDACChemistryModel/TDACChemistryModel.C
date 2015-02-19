@@ -940,12 +940,16 @@ Foam::scalar Foam::TDACChemistryModel<CompType, ThermoType>::solve
         cpuAddFile_
             <<runTime->timeOutputValue()<<"    "<<addNewLeafCpuTime_<<endl;
 
-        if (mechRed_->active() && nAvg)
-        {
-            //write average number of species if changed 
- 	     nActiveSpeciesFile_
-                <<runTime->timeOutputValue()<<"    "<<nActiveSpecies/nAvg<<endl;
-        }
+    }
+
+    if (mechRed_->active() && nAvg)
+    {
+        //write the cpu time analysis
+        const Time* runTime(&this->time());
+
+        //write average number of species if changed
+        nActiveSpeciesFile_
+            <<runTime->timeOutputValue()<<"    "<<nActiveSpecies/nAvg<<endl;
     }
 
     return deltaTMin;
